@@ -1,0 +1,458 @@
+// Talent Flow CRM - Database Schema
+// High-volume recruiting CRM for RTT Commerce BV
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+// ===========================================
+// ENUMS
+// ===========================================
+
+enum UserRole {
+  OWNER
+  ADMIN
+  RECRUITER
+  VIEWER
+}
+
+enum ImportBatchStatus {
+  PENDING
+  PROCESSING
+  COMPLETED
+  FAILED
+}
+
+enum ImportItemStatus {
+  QUEUED
+  PROCESSING
+  SUCCEEDED
+  FAILED
+}
+
+enum EmailStatus {
+  PENDING
+  SENT
+  DELIVERED
+  OPENED
+  FAILED
+}
+
+// ===========================================
+// USER & AUTHENTICATION
+// ===========================================
+
+model User {
+  id           String    @id @default(cuid())
+  email        String    @unique
+  name         String?
+  passwordHash String?
+  role         UserRole  @default(RECRUITER)
+
+  // Invitation flow
+  invitedAt      DateTime?
+  invitedByUserId String?
+  invitedBy      User?     @relation("UserInvitations", fields: [invitedByUserId], references: [id])
+  invitedUsers   User[]    @relation("UserInvitations")
+  activatedAt    DateTime?
+
+  // Invitation tokens
+  inviteToken        String?   @unique
+  inviteTokenExpires DateTime?
+
+  // Timestamps
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
+  deletedAt DateTime?
+
+  // Relations
+  pipelineAssignments  PipelineAssignment[] @relation("UserAssignments")
+  assignedPipelines    PipelineAssignment[] @relation("AssignedByUser")
+  assignedCandidates   Candidate[]          @relation("AssignedRecruiter")
+  rejectedCandidates   Candidate[]          @relation("RejectedByUser")
+  movedCandidates      CandidateStageHistory[]
+  uploadedAttachments  Attachment[]
+  createdImportBatches ImportBatch[]
+  createdNotes         Note[]
+  createdTemplates     EmailTemplate[]
+  sentEmails           EmailLog[]
+  auditLogs            AuditLog[]
+  mergedCandidates     MergeLog[]
+  savedSearches        SavedSearch[]
+
+  @@index([email])
+  @@index([deletedAt])
+}
+
+// ===========================================
+// PIPELINE & STAGES
+// ===========================================
+
+model Pipeline {
+  id          String   @id @default(cuid())
+  name        String
+  description String?
+  isArchived  Boolean  @default(false)
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  // Relations
+  stages      Stage[]
+  candidates  Candidate[]
+  assignments PipelineAssignment[]
+  imports     ImportBatch[]
+
+  @@index([isArchived])
+}
+
+model PipelineAssignment {
+  id         String   @id @default(cuid())
+  userId     String
+  pipelineId String
+
+  assignedByUserId String?
+  assignedAt       DateTime @default(now())
+
+  // Relations
+  user       User     @relation("UserAssignments", fields: [userId], references: [id], onDelete: Cascade)
+  pipeline   Pipeline @relation(fields: [pipelineId], references: [id], onDelete: Cascade)
+  assignedBy User?    @relation("AssignedByUser", fields: [assignedByUserId], references: [id])
+
+  @@unique([userId, pipelineId])
+  @@index([pipelineId])
+}
+
+model Stage {
+  id         String  @id @default(cuid())
+  pipelineId String
+  name       String
+  orderIndex Int
+  color      String  @default("#6B7280") // Gray
+  isDefault  Boolean @default(false)
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  // Relations
+  pipeline             Pipeline                @relation(fields: [pipelineId], references: [id], onDelete: Cascade)
+  candidates           Candidate[]
+  stageHistoryFrom     CandidateStageHistory[] @relation("FromStage")
+  stageHistoryTo       CandidateStageHistory[] @relation("ToStage")
+
+  @@unique([pipelineId, orderIndex])
+  @@index([pipelineId])
+}
+
+// ===========================================
+// CANDIDATES
+// ===========================================
+
+model Candidate {
+  id        String  @id @default(cuid())
+  fullName  String
+  email     String?
+  phoneE164 String? // Normalized phone number in E.164 format
+
+  // Current location in pipeline
+  pipelineId       String
+  stageId          String
+  assignedToUserId String?
+
+  // Source & parsing
+  source            String? // e.g., "import", "manual", "api"
+  extractedText     String? @db.Text
+  parsingConfidence Int?    // 0-100
+
+  // Rejection status
+  isRejected       Boolean   @default(false)
+  rejectedAt       DateTime?
+  rejectedByUserId String?
+
+  // Merge tracking
+  mergedIntoId String?
+  mergedInto   Candidate?  @relation("CandidateMerges", fields: [mergedIntoId], references: [id])
+  mergedFrom   Candidate[] @relation("CandidateMerges")
+
+  // Timestamps
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
+  deletedAt DateTime?
+
+  // Relations
+  pipeline     Pipeline    @relation(fields: [pipelineId], references: [id])
+  stage        Stage       @relation(fields: [stageId], references: [id])
+  assignedTo   User?       @relation("AssignedRecruiter", fields: [assignedToUserId], references: [id])
+  rejectedBy   User?       @relation("RejectedByUser", fields: [rejectedByUserId], references: [id])
+
+  stageHistory CandidateStageHistory[]
+  attachments  Attachment[]
+  importItems  ImportItem[]
+  notes        Note[]
+  tags         CandidateTag[]
+  emailLogs    EmailLog[]
+
+  // Merge logs
+  mergeLogsAsSource MergeLog[] @relation("MergeSource")
+  mergeLogsAsTarget MergeLog[] @relation("MergeTarget")
+
+  // Unique constraints with partial index (email/phone unique where not null and not deleted)
+  // Note: Prisma doesn't support partial unique indexes directly,
+  // we'll add these via raw SQL migration
+  @@index([pipelineId])
+  @@index([stageId])
+  @@index([email])
+  @@index([phoneE164])
+  @@index([deletedAt])
+  @@index([isRejected])
+}
+
+model CandidateStageHistory {
+  id          String   @id @default(cuid())
+  candidateId String
+  fromStageId String?
+  toStageId   String
+  movedByUserId String?
+  movedAt     DateTime @default(now())
+
+  // Relations
+  candidate Candidate @relation(fields: [candidateId], references: [id], onDelete: Cascade)
+  fromStage Stage?    @relation("FromStage", fields: [fromStageId], references: [id])
+  toStage   Stage     @relation("ToStage", fields: [toStageId], references: [id])
+  movedBy   User?     @relation(fields: [movedByUserId], references: [id])
+
+  @@index([candidateId])
+  @@index([movedAt])
+}
+
+// ===========================================
+// ATTACHMENTS & IMPORTS
+// ===========================================
+
+model Attachment {
+  id           String   @id @default(cuid())
+  candidateId  String
+  filename     String
+  s3Key        String   @unique
+  mimeType     String
+  sizeBytes    Int
+
+  uploadedByUserId String?
+  uploadedAt       DateTime @default(now())
+
+  // Relations
+  candidate  Candidate @relation(fields: [candidateId], references: [id], onDelete: Cascade)
+  uploadedBy User?     @relation(fields: [uploadedByUserId], references: [id])
+
+  @@index([candidateId])
+}
+
+model ImportBatch {
+  id               String            @id @default(cuid())
+  pipelineId       String
+  createdByUserId  String?
+  defaultCountryCode String          @default("BE")
+
+  totalFiles     Int               @default(0)
+  processedCount Int               @default(0)
+  successCount   Int               @default(0)
+  failedCount    Int               @default(0)
+
+  status      ImportBatchStatus @default(PENDING)
+
+  createdAt   DateTime  @default(now())
+  completedAt DateTime?
+
+  // Relations
+  pipeline  Pipeline     @relation(fields: [pipelineId], references: [id])
+  createdBy User?        @relation(fields: [createdByUserId], references: [id])
+  items     ImportItem[]
+
+  @@index([pipelineId])
+  @@index([status])
+}
+
+model ImportItem {
+  id            String           @id @default(cuid())
+  importBatchId String
+  filename      String
+  s3Key         String           @unique
+
+  status       ImportItemStatus @default(QUEUED)
+  errorMessage String?
+  candidateId  String?          // Set if candidate was created/matched
+
+  createdAt   DateTime  @default(now())
+  processedAt DateTime?
+
+  // Relations
+  importBatch ImportBatch @relation(fields: [importBatchId], references: [id], onDelete: Cascade)
+  candidate   Candidate?  @relation(fields: [candidateId], references: [id])
+
+  @@index([importBatchId])
+  @@index([status])
+}
+
+// ===========================================
+// NOTES & TAGS
+// ===========================================
+
+model Note {
+  id          String   @id @default(cuid())
+  candidateId String
+  content     String   @db.Text
+
+  createdByUserId String?
+  createdAt       DateTime @default(now())
+
+  // Relations
+  candidate Candidate @relation(fields: [candidateId], references: [id], onDelete: Cascade)
+  createdBy User?     @relation(fields: [createdByUserId], references: [id])
+
+  @@index([candidateId])
+  @@index([createdAt])
+}
+
+model Tag {
+  id    String @id @default(cuid())
+  name  String @unique
+  color String @default("#6B7280")
+
+  createdAt DateTime @default(now())
+
+  // Relations
+  candidates CandidateTag[]
+}
+
+model CandidateTag {
+  candidateId String
+  tagId       String
+
+  assignedAt DateTime @default(now())
+
+  // Relations
+  candidate Candidate @relation(fields: [candidateId], references: [id], onDelete: Cascade)
+  tag       Tag       @relation(fields: [tagId], references: [id], onDelete: Cascade)
+
+  @@id([candidateId, tagId])
+  @@index([tagId])
+}
+
+// ===========================================
+// EMAIL TEMPLATES & LOGS
+// ===========================================
+
+model EmailTemplate {
+  id        String   @id @default(cuid())
+  name      String
+  subject   String
+  body      String   @db.Text
+  variables String[] @default([]) // e.g., ["fullName", "firstName", "pipelineName"]
+
+  createdByUserId String?
+
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
+  deletedAt DateTime?
+
+  // Relations
+  createdBy User?      @relation(fields: [createdByUserId], references: [id])
+  emailLogs EmailLog[]
+
+  @@index([deletedAt])
+}
+
+model EmailLog {
+  id          String      @id @default(cuid())
+  candidateId String
+  templateId  String?
+  sentByUserId String?
+
+  toEmail   String
+  subject   String
+  body      String      @db.Text
+
+  status            EmailStatus @default(PENDING)
+  providerMessageId String?
+
+  sentAt      DateTime  @default(now())
+  deliveredAt DateTime?
+  openedAt    DateTime?
+  errorMessage String?
+
+  // Relations
+  candidate Candidate      @relation(fields: [candidateId], references: [id], onDelete: Cascade)
+  template  EmailTemplate? @relation(fields: [templateId], references: [id])
+  sentBy    User?          @relation(fields: [sentByUserId], references: [id])
+
+  @@index([candidateId])
+  @@index([status])
+  @@index([sentAt])
+}
+
+// ===========================================
+// AUDIT & MERGE LOGS
+// ===========================================
+
+model AuditLog {
+  id         String   @id @default(cuid())
+  userId     String?
+  action     String   // e.g., "candidate.create", "candidate.move", "user.invite"
+  entityType String   // e.g., "Candidate", "Pipeline", "User"
+  entityId   String
+  metadata   Json?    // Additional context
+
+  ipAddress String?
+  createdAt DateTime @default(now())
+
+  // Relations
+  user User? @relation(fields: [userId], references: [id])
+
+  @@index([userId])
+  @@index([entityType, entityId])
+  @@index([action])
+  @@index([createdAt])
+}
+
+model MergeLog {
+  id                String   @id @default(cuid())
+  sourceCandidateId String
+  targetCandidateId String
+  mergedByUserId    String?
+
+  mergedAt DateTime @default(now())
+
+  // Relations
+  sourceCandidate Candidate @relation("MergeSource", fields: [sourceCandidateId], references: [id])
+  targetCandidate Candidate @relation("MergeTarget", fields: [targetCandidateId], references: [id])
+  mergedBy        User?     @relation(fields: [mergedByUserId], references: [id])
+
+  @@index([sourceCandidateId])
+  @@index([targetCandidateId])
+  @@index([mergedAt])
+}
+
+// ===========================================
+// SAVED SEARCHES
+// ===========================================
+
+model SavedSearch {
+  id        String   @id @default(cuid())
+  userId    String
+  name      String
+  filters   Json     // Stored filter criteria
+  isDefault Boolean  @default(false)
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  // Relations
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
+}
