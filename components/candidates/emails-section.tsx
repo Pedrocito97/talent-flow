@@ -1,16 +1,7 @@
 'use client';
 
 import { useState, useEffect, useCallback } from 'react';
-import {
-  Mail,
-  Send,
-  Loader2,
-  CheckCircle,
-  XCircle,
-  Clock,
-  Eye,
-  FileText,
-} from 'lucide-react';
+import { Mail, Send, Loader2, CheckCircle, XCircle, Clock, Eye, FileText } from 'lucide-react';
 import { formatDistanceToNow } from 'date-fns';
 import { Button } from '@/components/ui/button';
 import { Label } from '@/components/ui/label';
@@ -32,6 +23,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select';
+import { toast } from 'sonner';
 
 interface EmailLog {
   id: string;
@@ -68,11 +60,7 @@ interface EmailsSectionProps {
   candidateEmail: string | null;
 }
 
-export function EmailsSection({
-  candidateId,
-  candidateName,
-  candidateEmail,
-}: EmailsSectionProps) {
+export function EmailsSection({ candidateId, candidateName, candidateEmail }: EmailsSectionProps) {
   const [emails, setEmails] = useState<EmailLog[]>([]);
   const [templates, setTemplates] = useState<EmailTemplate[]>([]);
   const [isLoading, setIsLoading] = useState(true);
@@ -156,13 +144,14 @@ export function EmailsSection({
       if (response.ok) {
         fetchEmails();
         setIsComposeOpen(false);
+        toast.success('Email sent successfully');
       } else {
         const data = await response.json();
-        alert(data.error || 'Failed to send email');
+        toast.error(data.error || 'Failed to send email');
       }
     } catch (error) {
       console.error('Failed to send email:', error);
-      alert('Failed to send email');
+      toast.error('Failed to send email');
     } finally {
       setIsSending(false);
     }
@@ -190,9 +179,17 @@ export function EmailsSection({
       case 'SENT':
         return <Badge variant="default">Sent</Badge>;
       case 'DELIVERED':
-        return <Badge variant="default" className="bg-green-500">Delivered</Badge>;
+        return (
+          <Badge variant="default" className="bg-green-500">
+            Delivered
+          </Badge>
+        );
       case 'OPENED':
-        return <Badge variant="default" className="bg-green-600">Opened</Badge>;
+        return (
+          <Badge variant="default" className="bg-green-600">
+            Opened
+          </Badge>
+        );
       case 'FAILED':
         return <Badge variant="destructive">Failed</Badge>;
     }
@@ -242,9 +239,7 @@ export function EmailsSection({
               {getStatusIcon(email.status)}
               <div className="flex-1 min-w-0">
                 <p className="text-sm font-medium truncate">{email.subject}</p>
-                <p className="text-xs text-muted-foreground truncate">
-                  To: {email.toEmail}
-                </p>
+                <p className="text-xs text-muted-foreground truncate">To: {email.toEmail}</p>
                 {email.errorMessage && (
                   <p className="text-xs text-destructive mt-1">{email.errorMessage}</p>
                 )}

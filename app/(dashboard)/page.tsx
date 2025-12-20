@@ -223,8 +223,12 @@ export default function DashboardPage() {
           <CardContent className="relative h-full flex flex-col justify-between p-6 text-white">
             <div className="flex items-start justify-between">
               <div>
-                <p className="text-white/70 font-medium text-sm uppercase tracking-wider">Total Candidates</p>
-                <h2 className="text-5xl font-bold mt-2 tracking-tight">{kpis.totalCandidates.toLocaleString()}</h2>
+                <p className="text-white/70 font-medium text-sm uppercase tracking-wider">
+                  Total Candidates
+                </p>
+                <h2 className="text-5xl font-bold mt-2 tracking-tight">
+                  {kpis.totalCandidates.toLocaleString()}
+                </h2>
               </div>
               <div className="h-14 w-14 rounded-2xl bg-white/20 backdrop-blur-sm flex items-center justify-center shadow-lg">
                 <Users className="h-7 w-7 text-white" />
@@ -257,12 +261,16 @@ export default function DashboardPage() {
               </div>
               <div className="text-right">
                 <p className="text-3xl font-bold">{kpis.activePipelines}</p>
-                <p className="text-xs text-muted-foreground font-medium uppercase tracking-wide">Pipelines</p>
+                <p className="text-xs text-muted-foreground font-medium uppercase tracking-wide">
+                  Pipelines
+                </p>
               </div>
             </div>
             <div className="flex items-center justify-between mt-3 pt-3 border-t border-border/50">
               <span className="text-sm text-muted-foreground">New this period</span>
-              <Badge variant="secondary" className="rounded-full font-semibold">{kpis.candidatesThisPeriod}</Badge>
+              <Badge variant="secondary" className="rounded-full font-semibold">
+                {kpis.candidatesThisPeriod}
+              </Badge>
             </div>
           </CardContent>
         </Card>
@@ -277,12 +285,19 @@ export default function DashboardPage() {
               </div>
               <div className="text-right">
                 <p className="text-3xl font-bold text-emerald-600">{kpis.hiredCandidates}</p>
-                <p className="text-xs text-muted-foreground font-medium uppercase tracking-wide">Hired</p>
+                <p className="text-xs text-muted-foreground font-medium uppercase tracking-wide">
+                  Hired
+                </p>
               </div>
             </div>
             <div className="flex items-center justify-between mt-3 pt-3 border-t border-border/50">
               <span className="text-sm text-muted-foreground">Rejected</span>
-              <Badge variant="secondary" className="rounded-full font-semibold bg-rose-100 text-rose-700 dark:bg-rose-950/50 dark:text-rose-400">{kpis.rejectedCandidates}</Badge>
+              <Badge
+                variant="secondary"
+                className="rounded-full font-semibold bg-rose-100 text-rose-700 dark:bg-rose-950/50 dark:text-rose-400"
+              >
+                {kpis.rejectedCandidates}
+              </Badge>
             </div>
           </CardContent>
         </Card>
@@ -297,12 +312,16 @@ export default function DashboardPage() {
               </div>
               <div className="text-right">
                 <p className="text-3xl font-bold">{kpis.emailsSent}</p>
-                <p className="text-xs text-muted-foreground font-medium uppercase tracking-wide">Emails Sent</p>
+                <p className="text-xs text-muted-foreground font-medium uppercase tracking-wide">
+                  Emails Sent
+                </p>
               </div>
             </div>
             <div className="flex items-center justify-between mt-3 pt-3 border-t border-border/50">
               <span className="text-sm text-muted-foreground">Conversion</span>
-              <Badge variant="secondary" className="rounded-full font-semibold">{kpis.conversionRate}%</Badge>
+              <Badge variant="secondary" className="rounded-full font-semibold">
+                {kpis.conversionRate}%
+              </Badge>
             </div>
           </CardContent>
         </Card>
@@ -526,7 +545,10 @@ export default function DashboardPage() {
             {topRecruiters.length > 0 ? (
               <div className="space-y-3">
                 {topRecruiters.slice(0, 4).map((recruiter, index) => (
-                  <div key={recruiter.user.id} className="flex items-center gap-3 p-2 rounded-xl hover:bg-muted/50 transition-colors">
+                  <div
+                    key={recruiter.user.id}
+                    className="flex items-center gap-3 p-2 rounded-xl hover:bg-muted/50 transition-colors"
+                  >
                     <div className="text-sm font-bold text-muted-foreground/50 w-5">
                       {index + 1}
                     </div>
@@ -544,9 +566,7 @@ export default function DashboardPage() {
                       <p className="font-medium text-sm truncate">
                         {recruiter.user.name || recruiter.user.email}
                       </p>
-                      <p className="text-xs text-muted-foreground">
-                        {recruiter.count} processed
-                      </p>
+                      <p className="text-xs text-muted-foreground">{recruiter.count} processed</p>
                     </div>
                     <Badge variant="secondary" className="rounded-full">
                       {recruiter.count}
@@ -586,7 +606,10 @@ export default function DashboardPage() {
             {recentActivity.length > 0 ? (
               <div className="space-y-3">
                 {recentActivity.slice(0, 4).map((activity) => (
-                  <div key={activity.id} className="flex items-start gap-3 p-2 rounded-xl hover:bg-muted/50 transition-colors">
+                  <div
+                    key={activity.id}
+                    className="flex items-start gap-3 p-2 rounded-xl hover:bg-muted/50 transition-colors"
+                  >
                     <div className="h-8 w-8 rounded-lg bg-gradient-to-br from-muted to-muted/50 flex items-center justify-center mt-0.5">
                       <Activity className="h-3.5 w-3.5 text-muted-foreground" />
                     </div>

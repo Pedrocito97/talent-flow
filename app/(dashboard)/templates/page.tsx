@@ -1,16 +1,7 @@
 'use client';
 
 import { useState, useEffect, useCallback } from 'react';
-import {
-  Mail,
-  Plus,
-  Pencil,
-  Trash2,
-  Loader2,
-  Search,
-  Copy,
-  Eye,
-} from 'lucide-react';
+import { Mail, Plus, Pencil, Trash2, Loader2, Search, Copy, Eye } from 'lucide-react';
 import { formatDistanceToNow } from 'date-fns';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -127,9 +118,7 @@ export default function TemplatesPage() {
     setIsSaving(true);
 
     try {
-      const url = editingTemplate
-        ? `/api/templates/${editingTemplate.id}`
-        : '/api/templates';
+      const url = editingTemplate ? `/api/templates/${editingTemplate.id}` : '/api/templates';
 
       const response = await fetch(url, {
         method: editingTemplate ? 'PUT' : 'POST',
@@ -252,12 +241,8 @@ export default function TemplatesPage() {
               <CardHeader className="pb-3">
                 <div className="flex items-start justify-between">
                   <div className="flex-1 min-w-0">
-                    <CardTitle className="text-base truncate">
-                      {template.name}
-                    </CardTitle>
-                    <CardDescription className="truncate">
-                      {template.subject}
-                    </CardDescription>
+                    <CardTitle className="text-base truncate">{template.name}</CardTitle>
+                    <CardDescription className="truncate">{template.subject}</CardDescription>
                   </div>
                   <div className="flex gap-1 ml-2">
                     <Button
@@ -303,7 +288,8 @@ export default function TemplatesPage() {
                 )}
                 <div className="flex items-center justify-between text-xs text-muted-foreground">
                   <span>
-                    {template._count.emailLogs} email{template._count.emailLogs !== 1 ? 's' : ''} sent
+                    {template._count.emailLogs} email{template._count.emailLogs !== 1 ? 's' : ''}{' '}
+                    sent
                   </span>
                   <span>
                     {formatDistanceToNow(new Date(template.updatedAt), { addSuffix: true })}
@@ -319,9 +305,7 @@ export default function TemplatesPage() {
       <Dialog open={isCreateOpen || !!editingTemplate} onOpenChange={handleClose}>
         <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
           <DialogHeader>
-            <DialogTitle>
-              {editingTemplate ? 'Edit Template' : 'Create Template'}
-            </DialogTitle>
+            <DialogTitle>{editingTemplate ? 'Edit Template' : 'Create Template'}</DialogTitle>
             <DialogDescription>
               Create an email template with variable placeholders for personalization.
             </DialogDescription>

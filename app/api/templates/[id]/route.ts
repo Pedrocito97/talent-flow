@@ -28,10 +28,7 @@ export async function GET(request: NextRequest, { params }: RouteParams) {
 
     const userRole = session.user.role as UserRole;
     if (!hasPermission(userRole, 'TEMPLATE_VIEW')) {
-      return NextResponse.json(
-        { error: 'Insufficient permissions' },
-        { status: 403 }
-      );
+      return NextResponse.json({ error: 'Insufficient permissions' }, { status: 403 });
     }
 
     const { id } = await params;
@@ -55,19 +52,13 @@ export async function GET(request: NextRequest, { params }: RouteParams) {
     });
 
     if (!template) {
-      return NextResponse.json(
-        { error: 'Template not found' },
-        { status: 404 }
-      );
+      return NextResponse.json({ error: 'Template not found' }, { status: 404 });
     }
 
     return NextResponse.json({ template });
   } catch (error) {
     console.error('Error fetching template:', error);
-    return NextResponse.json(
-      { error: 'Internal server error' },
-      { status: 500 }
-    );
+    return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
   }
 }
 
@@ -81,10 +72,7 @@ export async function PUT(request: NextRequest, { params }: RouteParams) {
 
     const userRole = session.user.role as UserRole;
     if (!hasPermission(userRole, 'TEMPLATE_UPDATE')) {
-      return NextResponse.json(
-        { error: 'Insufficient permissions' },
-        { status: 403 }
-      );
+      return NextResponse.json({ error: 'Insufficient permissions' }, { status: 403 });
     }
 
     const { id } = await params;
@@ -104,10 +92,7 @@ export async function PUT(request: NextRequest, { params }: RouteParams) {
     });
 
     if (!existing) {
-      return NextResponse.json(
-        { error: 'Template not found' },
-        { status: 404 }
-      );
+      return NextResponse.json({ error: 'Template not found' }, { status: 404 });
     }
 
     const updateData: Record<string, unknown> = {};
@@ -118,7 +103,9 @@ export async function PUT(request: NextRequest, { params }: RouteParams) {
       updateData.body = parsed.data.body;
       // Re-extract variables when body changes
       const extractedVariables = extractVariablesFromTemplate(parsed.data.body);
-      updateData.variables = [...new Set([...(parsed.data.variables || []), ...extractedVariables])];
+      updateData.variables = [
+        ...new Set([...(parsed.data.variables || []), ...extractedVariables]),
+      ];
     } else if (parsed.data.variables !== undefined) {
       updateData.variables = parsed.data.variables;
     }
@@ -151,10 +138,7 @@ export async function PUT(request: NextRequest, { params }: RouteParams) {
     return NextResponse.json({ template });
   } catch (error) {
     console.error('Error updating template:', error);
-    return NextResponse.json(
-      { error: 'Internal server error' },
-      { status: 500 }
-    );
+    return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
   }
 }
 
@@ -168,10 +152,7 @@ export async function DELETE(request: NextRequest, { params }: RouteParams) {
 
     const userRole = session.user.role as UserRole;
     if (!hasPermission(userRole, 'TEMPLATE_DELETE')) {
-      return NextResponse.json(
-        { error: 'Insufficient permissions' },
-        { status: 403 }
-      );
+      return NextResponse.json({ error: 'Insufficient permissions' }, { status: 403 });
     }
 
     const { id } = await params;
@@ -182,10 +163,7 @@ export async function DELETE(request: NextRequest, { params }: RouteParams) {
     });
 
     if (!existing) {
-      return NextResponse.json(
-        { error: 'Template not found' },
-        { status: 404 }
-      );
+      return NextResponse.json({ error: 'Template not found' }, { status: 404 });
     }
 
     // Soft delete
@@ -208,10 +186,7 @@ export async function DELETE(request: NextRequest, { params }: RouteParams) {
     return NextResponse.json({ success: true });
   } catch (error) {
     console.error('Error deleting template:', error);
-    return NextResponse.json(
-      { error: 'Internal server error' },
-      { status: 500 }
-    );
+    return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
   }
 }
 

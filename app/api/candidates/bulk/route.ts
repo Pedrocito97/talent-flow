@@ -46,10 +46,7 @@ export async function POST(request: NextRequest) {
     });
 
     if (candidates.length !== candidateIds.length) {
-      return NextResponse.json(
-        { error: 'One or more candidates not found' },
-        { status: 404 }
-      );
+      return NextResponse.json({ error: 'One or more candidates not found' }, { status: 404 });
     }
 
     // Verify all candidates are in the same pipeline
@@ -86,10 +83,7 @@ export async function POST(request: NextRequest) {
         });
 
         if (!stage) {
-          return NextResponse.json(
-            { error: 'Stage not found in this pipeline' },
-            { status: 404 }
-          );
+          return NextResponse.json({ error: 'Stage not found in this pipeline' }, { status: 404 });
         }
 
         // Move candidates
@@ -261,10 +255,7 @@ export async function POST(request: NextRequest) {
             where: { id: assignedToUserId },
           });
           if (!user) {
-            return NextResponse.json(
-              { error: 'User not found' },
-              { status: 404 }
-            );
+            return NextResponse.json({ error: 'User not found' }, { status: 404 });
           }
         }
 
@@ -306,9 +297,6 @@ export async function POST(request: NextRequest) {
     return NextResponse.json(result);
   } catch (error) {
     console.error('Error performing bulk action:', error);
-    return NextResponse.json(
-      { error: 'Internal server error' },
-      { status: 500 }
-    );
+    return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
   }
 }

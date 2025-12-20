@@ -26,10 +26,7 @@ export async function PUT(request: NextRequest, { params }: RouteParams) {
     const userRole = session.user.role as UserRole;
 
     if (!hasPermission(userRole, 'STAGE_UPDATE')) {
-      return NextResponse.json(
-        { error: 'Insufficient permissions' },
-        { status: 403 }
-      );
+      return NextResponse.json({ error: 'Insufficient permissions' }, { status: 403 });
     }
 
     const body = await request.json();
@@ -78,10 +75,7 @@ export async function PUT(request: NextRequest, { params }: RouteParams) {
     // Check for duplicates
     const uniqueIds = new Set(stageIds);
     if (uniqueIds.size !== stageIds.length) {
-      return NextResponse.json(
-        { error: 'Duplicate stage IDs are not allowed' },
-        { status: 400 }
-      );
+      return NextResponse.json({ error: 'Duplicate stage IDs are not allowed' }, { status: 400 });
     }
 
     // Update all stages with new order indices using a transaction
@@ -114,9 +108,6 @@ export async function PUT(request: NextRequest, { params }: RouteParams) {
     return NextResponse.json({ stages: updatedStages });
   } catch (error) {
     console.error('Error reordering stages:', error);
-    return NextResponse.json(
-      { error: 'Internal server error' },
-      { status: 500 }
-    );
+    return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
   }
 }

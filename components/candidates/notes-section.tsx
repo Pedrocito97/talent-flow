@@ -85,14 +85,11 @@ export function NotesSection({
 
     setIsSubmitting(true);
     try {
-      const response = await fetch(
-        `/api/candidates/${candidateId}/notes/${noteId}`,
-        {
-          method: 'PUT',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ content: editContent.trim() }),
-        }
-      );
+      const response = await fetch(`/api/candidates/${candidateId}/notes/${noteId}`, {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ content: editContent.trim() }),
+      });
 
       if (response.ok) {
         const { note } = await response.json();
@@ -111,10 +108,9 @@ export function NotesSection({
     if (!deletingNoteId) return;
 
     try {
-      const response = await fetch(
-        `/api/candidates/${candidateId}/notes/${deletingNoteId}`,
-        { method: 'DELETE' }
-      );
+      const response = await fetch(`/api/candidates/${candidateId}/notes/${deletingNoteId}`, {
+        method: 'DELETE',
+      });
 
       if (response.ok) {
         onNoteDeleted(deletingNoteId);

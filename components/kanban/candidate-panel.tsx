@@ -14,12 +14,7 @@ import {
   X,
   Loader2,
 } from 'lucide-react';
-import {
-  Sheet,
-  SheetContent,
-  SheetHeader,
-  SheetTitle,
-} from '@/components/ui/sheet';
+import { Sheet, SheetContent, SheetHeader, SheetTitle } from '@/components/ui/sheet';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Avatar, AvatarFallback } from '@/components/ui/avatar';
@@ -96,12 +91,7 @@ interface CandidatePanelProps {
   onReject?: (candidateId: string) => void;
 }
 
-export function CandidatePanel({
-  candidateId,
-  open,
-  onClose,
-  onReject,
-}: CandidatePanelProps) {
+export function CandidatePanel({ candidateId, open, onClose, onReject }: CandidatePanelProps) {
   const [candidate, setCandidate] = useState<CandidateDetail | null>(null);
   const [isLoading, setIsLoading] = useState(false);
 
@@ -181,9 +171,7 @@ export function CandidatePanel({
                         />
                         {candidate.stage.name}
                       </Badge>
-                      {candidate.isRejected && (
-                        <Badge variant="destructive">Rejected</Badge>
-                      )}
+                      {candidate.isRejected && <Badge variant="destructive">Rejected</Badge>}
                     </div>
                   </div>
                 </div>
@@ -288,9 +276,7 @@ export function CandidatePanel({
 
                   <TabsContent value="notes" className="mt-4 space-y-3">
                     {candidate.notes.length === 0 ? (
-                      <p className="text-sm text-muted-foreground text-center py-4">
-                        No notes yet
-                      </p>
+                      <p className="text-sm text-muted-foreground text-center py-4">No notes yet</p>
                     ) : (
                       candidate.notes.map((note) => (
                         <div key={note.id} className="rounded-lg border p-3">
@@ -323,8 +309,7 @@ export function CandidatePanel({
                             <div>
                               <p className="text-sm font-medium">{file.filename}</p>
                               <p className="text-xs text-muted-foreground">
-                                {formatFileSize(file.sizeBytes)} •{' '}
-                                {formatDate(file.uploadedAt)}
+                                {formatFileSize(file.sizeBytes)} • {formatDate(file.uploadedAt)}
                               </p>
                             </div>
                           </div>
@@ -354,8 +339,7 @@ export function CandidatePanel({
                                 {entry.fromStage ? (
                                   <>
                                     Moved from{' '}
-                                    <span className="font-medium">{entry.fromStage.name}</span>{' '}
-                                    to{' '}
+                                    <span className="font-medium">{entry.fromStage.name}</span> to{' '}
                                     <span className="font-medium">{entry.toStage.name}</span>
                                   </>
                                 ) : (

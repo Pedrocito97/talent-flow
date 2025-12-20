@@ -1,8 +1,8 @@
 import type { NextConfig } from 'next';
 
 const nextConfig: NextConfig = {
-  // Exclude Prisma from edge runtime bundling
-  serverExternalPackages: ['@prisma/client', 'bcryptjs'],
+  // Exclude packages from bundling (they'll be required at runtime)
+  serverExternalPackages: ['@prisma/client', 'bcryptjs', 'pdfjs-dist'],
 
   // Experimental features
   experimental: {

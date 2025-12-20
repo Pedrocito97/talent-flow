@@ -14,13 +14,7 @@ import {
   Loader2,
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
-import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardHeader,
-  CardTitle,
-} from '@/components/ui/card';
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -42,6 +36,7 @@ import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
 import { Badge } from '@/components/ui/badge';
 import { Skeleton } from '@/components/ui/skeleton';
+import { toast } from 'sonner';
 
 interface Stage {
   id: string;
@@ -143,9 +138,10 @@ export default function PipelinesPage() {
 
       if (response.ok) {
         setPipelines((prev) => prev.filter((p) => p.id !== id));
+        toast.success('Pipeline deleted successfully');
       } else {
         const data = await response.json();
-        alert(data.message || data.error);
+        toast.error(data.message || data.error);
       }
     } catch (error) {
       console.error('Error deleting pipeline:', error);
@@ -192,7 +188,10 @@ export default function PipelinesPage() {
         </div>
         <Dialog open={isCreateOpen} onOpenChange={setIsCreateOpen}>
           <DialogTrigger asChild>
-            <Button size="lg" className="rounded-xl bg-gradient-to-r from-teal-500 to-cyan-500 hover:from-teal-600 hover:to-cyan-600 shadow-lg shadow-teal-500/25">
+            <Button
+              size="lg"
+              className="rounded-xl bg-gradient-to-r from-teal-500 to-cyan-500 hover:from-teal-600 hover:to-cyan-600 shadow-lg shadow-teal-500/25"
+            >
               <Plus className="mr-2 h-5 w-5" />
               New Pipeline
             </Button>
@@ -212,9 +211,7 @@ export default function PipelinesPage() {
                     id="name"
                     placeholder="e.g., Sales Recruitment"
                     value={newPipeline.name}
-                    onChange={(e) =>
-                      setNewPipeline((prev) => ({ ...prev, name: e.target.value }))
-                    }
+                    onChange={(e) => setNewPipeline((prev) => ({ ...prev, name: e.target.value }))}
                     className="h-11 rounded-xl"
                     required
                   />
@@ -274,7 +271,8 @@ export default function PipelinesPage() {
             </div>
             <h3 className="text-xl font-semibold">No pipelines yet</h3>
             <p className="mt-2 text-center text-muted-foreground max-w-sm">
-              Create your first pipeline to start organizing and tracking candidates through your recruitment process.
+              Create your first pipeline to start organizing and tracking candidates through your
+              recruitment process.
             </p>
             <Button
               size="lg"
@@ -332,9 +330,7 @@ export default function PipelinesPage() {
                           </Link>
                         </DropdownMenuItem>
                         <DropdownMenuSeparator />
-                        <DropdownMenuItem
-                          onClick={() => handleArchivePipeline(pipeline.id)}
-                        >
+                        <DropdownMenuItem onClick={() => handleArchivePipeline(pipeline.id)}>
                           <Archive className="mr-2 h-4 w-4" />
                           Archive
                         </DropdownMenuItem>
@@ -357,9 +353,7 @@ export default function PipelinesPage() {
                       <Users className="h-5 w-5 text-teal-600" />
                     </div>
                     <div>
-                      <span className="text-2xl font-bold">
-                        {pipeline._count.candidates}
-                      </span>
+                      <span className="text-2xl font-bold">{pipeline._count.candidates}</span>
                       <span className="ml-2 text-sm text-muted-foreground">
                         {pipeline._count.candidates === 1 ? 'candidate' : 'candidates'}
                       </span>

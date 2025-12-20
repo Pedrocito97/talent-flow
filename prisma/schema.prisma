@@ -281,7 +281,9 @@ model ImportItem {
   id            String           @id @default(cuid())
   importBatchId String
   filename      String
-  s3Key         String           @unique
+  s3Key         String?          @unique
+  fileContent   Bytes?           // Store file content directly (for local processing)
+  mimeType      String?
 
   status       ImportItemStatus @default(QUEUED)
   errorMessage String?

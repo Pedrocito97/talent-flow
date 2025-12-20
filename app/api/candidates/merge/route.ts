@@ -10,11 +10,13 @@ const mergeSchema = z.object({
   targetId: z.string().min(1, 'Target candidate ID is required'),
   sourceIds: z.array(z.string()).min(1, 'At least one source candidate is required'),
   // Optional: specify which fields to take from which candidate
-  fieldOverrides: z.object({
-    fullName: z.string().optional(),
-    email: z.string().email().optional().nullable(),
-    phoneE164: z.string().optional().nullable(),
-  }).optional(),
+  fieldOverrides: z
+    .object({
+      fullName: z.string().optional(),
+      email: z.string().email().optional().nullable(),
+      phoneE164: z.string().optional().nullable(),
+    })
+    .optional(),
 });
 
 // POST /api/candidates/merge - Merge candidates
@@ -27,10 +29,7 @@ export async function POST(request: NextRequest) {
 
     const userRole = session.user.role as UserRole;
     if (!hasPermission(userRole, 'CANDIDATE_MERGE')) {
-      return NextResponse.json(
-        { error: 'Insufficient permissions' },
-        { status: 403 }
-      );
+      return NextResponse.json({ error: 'Insufficient permissions' }, { status: 403 });
     }
 
     const body = await request.json();
@@ -122,9 +121,7 @@ export async function POST(request: NextRequest) {
 
       // 2. Move all tags from sources to target (avoiding duplicates)
       const existingTagIds = new Set(target.tags.map((t) => t.tagId));
-      const newTags = sources
-        .flatMap((s) => s.tags)
-        .filter((t) => !existingTagIds.has(t.tagId));
+      const newTags = sources.flatMap((s) => s.tags).filter((t) => !existingTagIds.has(t.tagId));
 
       if (newTags.length > 0) {
         await tx.candidateTag.createMany({
@@ -226,9 +223,6 @@ export async function POST(request: NextRequest) {
     });
   } catch (error) {
     console.error('Error merging candidates:', error);
-    return NextResponse.json(
-      { error: 'Internal server error' },
-      { status: 500 }
-    );
+    return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
   }
 }

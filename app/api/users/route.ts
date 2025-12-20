@@ -15,10 +15,7 @@ export async function GET() {
 
     const userRole = session.user.role as UserRole;
     if (!hasPermission(userRole, 'USER_VIEW')) {
-      return NextResponse.json(
-        { error: 'Insufficient permissions' },
-        { status: 403 }
-      );
+      return NextResponse.json({ error: 'Insufficient permissions' }, { status: 403 });
     }
 
     const users = await db.user.findMany({
@@ -46,16 +43,11 @@ export async function GET() {
           },
         },
       },
-      orderBy: [
-        { role: 'asc' },
-        { name: 'asc' },
-      ],
+      orderBy: [{ role: 'asc' }, { name: 'asc' }],
     });
 
     // Count pending invitations
-    const pendingInvitations = users.filter(
-      (u) => u.invitedAt && !u.activatedAt
-    ).length;
+    const pendingInvitations = users.filter((u) => u.invitedAt && !u.activatedAt).length;
 
     return NextResponse.json({
       users,
@@ -67,9 +59,6 @@ export async function GET() {
     });
   } catch (error) {
     console.error('Error fetching users:', error);
-    return NextResponse.json(
-      { error: 'Internal server error' },
-      { status: 500 }
-    );
+    return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
   }
 }

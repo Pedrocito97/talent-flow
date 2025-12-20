@@ -12,11 +12,11 @@ import {
   Mail,
   CheckCircle,
   AlertCircle,
-  Search,
+  Search as _Search,
   ChevronLeft,
   ChevronRight,
 } from 'lucide-react';
-import { formatDistanceToNow, format } from 'date-fns';
+import { formatDistanceToNow, format as _format } from 'date-fns';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
@@ -63,6 +63,7 @@ import {
   TableHeader,
   TableRow,
 } from '@/components/ui/table';
+import { toast } from 'sonner';
 
 interface User {
   id: string;
@@ -165,29 +166,32 @@ export default function SettingsPage() {
   }, []);
 
   // Fetch audit logs
-  const fetchAuditLogs = useCallback(async (page = 1) => {
-    setIsLoadingLogs(true);
-    try {
-      const params = new URLSearchParams({
-        page: page.toString(),
-        pageSize: '20',
-      });
-      if (selectedActionType) params.set('action', selectedActionType);
-      if (selectedEntityType) params.set('entityType', selectedEntityType);
+  const fetchAuditLogs = useCallback(
+    async (page = 1) => {
+      setIsLoadingLogs(true);
+      try {
+        const params = new URLSearchParams({
+          page: page.toString(),
+          pageSize: '20',
+        });
+        if (selectedActionType) params.set('action', selectedActionType);
+        if (selectedEntityType) params.set('entityType', selectedEntityType);
 
-      const response = await fetch(`/api/audit-logs?${params}`);
-      if (response.ok) {
-        const data = await response.json();
-        setAuditLogs(data.logs);
-        setAuditPagination(data.pagination);
-        setAuditFilters(data.filters);
+        const response = await fetch(`/api/audit-logs?${params}`);
+        if (response.ok) {
+          const data = await response.json();
+          setAuditLogs(data.logs);
+          setAuditPagination(data.pagination);
+          setAuditFilters(data.filters);
+        }
+      } catch (error) {
+        console.error('Failed to fetch audit logs:', error);
+      } finally {
+        setIsLoadingLogs(false);
       }
-    } catch (error) {
-      console.error('Failed to fetch audit logs:', error);
-    } finally {
-      setIsLoadingLogs(false);
-    }
-  }, [selectedActionType, selectedEntityType]);
+    },
+    [selectedActionType, selectedEntityType]
+  );
 
   useEffect(() => {
     fetchUsers();
@@ -219,13 +223,14 @@ export default function SettingsPage() {
         setInviteEmail('');
         setInviteName('');
         setInviteRole('RECRUITER');
+        toast.success('Invitation sent successfully');
       } else {
         const data = await response.json();
-        alert(data.error || 'Failed to send invitation');
+        toast.error(data.error || 'Failed to send invitation');
       }
     } catch (error) {
       console.error('Failed to invite user:', error);
-      alert('Failed to send invitation');
+      toast.error('Failed to send invitation');
     } finally {
       setIsSubmitting(false);
     }
@@ -246,13 +251,14 @@ export default function SettingsPage() {
       if (response.ok) {
         fetchUsers();
         setEditingUser(null);
+        toast.success('User role updated successfully');
       } else {
         const data = await response.json();
-        alert(data.error || 'Failed to update user');
+        toast.error(data.error || 'Failed to update user');
       }
     } catch (error) {
       console.error('Failed to update user:', error);
-      alert('Failed to update user');
+      toast.error('Failed to update user');
     } finally {
       setIsSubmitting(false);
     }
@@ -270,13 +276,14 @@ export default function SettingsPage() {
 
       if (response.ok) {
         fetchUsers();
+        toast.success('User removed successfully');
       } else {
         const data = await response.json();
-        alert(data.error || 'Failed to delete user');
+        toast.error(data.error || 'Failed to delete user');
       }
     } catch (error) {
       console.error('Failed to delete user:', error);
-      alert('Failed to delete user');
+      toast.error('Failed to delete user');
     } finally {
       setIsSubmitting(false);
       setDeletingUser(null);
@@ -297,22 +304,20 @@ export default function SettingsPage() {
       });
 
       if (response.ok) {
-        alert('Invitation resent successfully');
+        toast.success('Invitation resent successfully');
         fetchUsers();
       } else {
         const data = await response.json();
-        alert(data.error || 'Failed to resend invitation');
+        toast.error(data.error || 'Failed to resend invitation');
       }
     } catch (error) {
       console.error('Failed to resend invitation:', error);
-      alert('Failed to resend invitation');
+      toast.error('Failed to resend invitation');
     }
   };
 
   const getRoleBadge = (role: string) => (
-    <Badge className={`${ROLE_COLORS[role]} text-white`}>
-      {ROLE_LABELS[role]}
-    </Badge>
+    <Badge className={`${ROLE_COLORS[role]} text-white`}>{ROLE_LABELS[role]}</Badge>
   );
 
   const formatAction = (action: string) => {
@@ -326,9 +331,7 @@ export default function SettingsPage() {
     <div className="p-6 max-w-6xl mx-auto">
       <div className="mb-6">
         <h1 className="text-2xl font-semibold">Settings</h1>
-        <p className="text-muted-foreground">
-          Manage your team and view system activity
-        </p>
+        <p className="text-muted-foreground">Manage your team and view system activity</p>
       </div>
 
       <Tabs defaultValue="team">
@@ -372,9 +375,7 @@ export default function SettingsPage() {
             <CardHeader className="flex flex-row items-center justify-between">
               <div>
                 <CardTitle>Team Members</CardTitle>
-                <CardDescription>
-                  Manage your team and their permissions
-                </CardDescription>
+                <CardDescription>Manage your team and their permissions</CardDescription>
               </div>
               <Button onClick={() => setIsInviteOpen(true)}>
                 <UserPlus className="mr-2 h-4 w-4" />
@@ -473,9 +474,7 @@ export default function SettingsPage() {
           <Card>
             <CardHeader>
               <CardTitle>Activity Log</CardTitle>
-              <CardDescription>
-                View all system activity and changes
-              </CardDescription>
+              <CardDescription>View all system activity and changes</CardDescription>
             </CardHeader>
             <CardContent>
               {/* Filters */}
@@ -514,9 +513,7 @@ export default function SettingsPage() {
                   <Loader2 className="h-6 w-6 animate-spin text-muted-foreground" />
                 </div>
               ) : auditLogs.length === 0 ? (
-                <p className="text-center text-muted-foreground py-8">
-                  No activity logs found
-                </p>
+                <p className="text-center text-muted-foreground py-8">No activity logs found</p>
               ) : (
                 <>
                   <Table>
@@ -532,9 +529,7 @@ export default function SettingsPage() {
                       {auditLogs.map((log) => (
                         <TableRow key={log.id}>
                           <TableCell>
-                            <Badge variant="outline">
-                              {formatAction(log.action)}
-                            </Badge>
+                            <Badge variant="outline">{formatAction(log.action)}</Badge>
                           </TableCell>
                           <TableCell>
                             {log.user ? (
@@ -565,8 +560,11 @@ export default function SettingsPage() {
                   <div className="flex items-center justify-between mt-4">
                     <p className="text-sm text-muted-foreground">
                       Showing {(auditPagination.page - 1) * auditPagination.pageSize + 1} to{' '}
-                      {Math.min(auditPagination.page * auditPagination.pageSize, auditPagination.total)} of{' '}
-                      {auditPagination.total} entries
+                      {Math.min(
+                        auditPagination.page * auditPagination.pageSize,
+                        auditPagination.total
+                      )}{' '}
+                      of {auditPagination.total} entries
                     </p>
                     <div className="flex gap-2">
                       <Button
@@ -698,8 +696,8 @@ export default function SettingsPage() {
           <AlertDialogHeader>
             <AlertDialogTitle>Remove Team Member</AlertDialogTitle>
             <AlertDialogDescription>
-              Are you sure you want to remove {deletingUser?.name || deletingUser?.email} from
-              the team? They will lose access to the system.
+              Are you sure you want to remove {deletingUser?.name || deletingUser?.email} from the
+              team? They will lose access to the system.
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>

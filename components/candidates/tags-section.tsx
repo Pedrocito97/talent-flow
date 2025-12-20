@@ -4,11 +4,7 @@ import { useState, useEffect } from 'react';
 import { Plus, X, Check, Loader2 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
-import {
-  Popover,
-  PopoverContent,
-  PopoverTrigger,
-} from '@/components/ui/popover';
+import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
 import {
   Command,
   CommandEmpty,
@@ -76,10 +72,9 @@ export function TagsSection({ candidateId, tags, onTagsChanged }: TagsSectionPro
 
   const handleRemoveTag = async (tagId: string) => {
     try {
-      const response = await fetch(
-        `/api/candidates/${candidateId}/tags?tagId=${tagId}`,
-        { method: 'DELETE' }
-      );
+      const response = await fetch(`/api/candidates/${candidateId}/tags?tagId=${tagId}`, {
+        method: 'DELETE',
+      });
 
       if (response.ok) {
         onTagsChanged(tags.filter((t) => t.id !== tagId));
@@ -114,9 +109,7 @@ export function TagsSection({ candidateId, tags, onTagsChanged }: TagsSectionPro
     }
   };
 
-  const availableTags = allTags.filter(
-    (tag) => !tags.some((t) => t.id === tag.id)
-  );
+  const availableTags = allTags.filter((tag) => !tags.some((t) => t.id === tag.id));
 
   return (
     <div className="space-y-2">

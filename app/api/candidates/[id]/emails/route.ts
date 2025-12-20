@@ -29,10 +29,7 @@ export async function GET(request: NextRequest, { params }: RouteParams) {
 
     const userRole = session.user.role as UserRole;
     if (!hasPermission(userRole, 'CANDIDATE_VIEW')) {
-      return NextResponse.json(
-        { error: 'Insufficient permissions' },
-        { status: 403 }
-      );
+      return NextResponse.json({ error: 'Insufficient permissions' }, { status: 403 });
     }
 
     const { id } = await params;
@@ -44,10 +41,7 @@ export async function GET(request: NextRequest, { params }: RouteParams) {
     });
 
     if (!candidate) {
-      return NextResponse.json(
-        { error: 'Candidate not found' },
-        { status: 404 }
-      );
+      return NextResponse.json({ error: 'Candidate not found' }, { status: 404 });
     }
 
     const emails = await db.emailLog.findMany({
@@ -73,10 +67,7 @@ export async function GET(request: NextRequest, { params }: RouteParams) {
     return NextResponse.json({ emails });
   } catch (error) {
     console.error('Error fetching emails:', error);
-    return NextResponse.json(
-      { error: 'Internal server error' },
-      { status: 500 }
-    );
+    return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
   }
 }
 
@@ -90,10 +81,7 @@ export async function POST(request: NextRequest, { params }: RouteParams) {
 
     const userRole = session.user.role as UserRole;
     if (!hasPermission(userRole, 'TEMPLATE_SEND')) {
-      return NextResponse.json(
-        { error: 'Insufficient permissions' },
-        { status: 403 }
-      );
+      return NextResponse.json({ error: 'Insufficient permissions' }, { status: 403 });
     }
 
     const { id } = await params;
@@ -121,20 +109,14 @@ export async function POST(request: NextRequest, { params }: RouteParams) {
     });
 
     if (!candidate) {
-      return NextResponse.json(
-        { error: 'Candidate not found' },
-        { status: 404 }
-      );
+      return NextResponse.json({ error: 'Candidate not found' }, { status: 404 });
     }
 
     // Use provided email or candidate's email
     const toEmail = parsed.data.toEmail || candidate.email;
 
     if (!toEmail) {
-      return NextResponse.json(
-        { error: 'Candidate has no email address' },
-        { status: 400 }
-      );
+      return NextResponse.json({ error: 'Candidate has no email address' }, { status: 400 });
     }
 
     // Replace template variables
@@ -232,18 +214,12 @@ export async function POST(request: NextRequest, { params }: RouteParams) {
     }
   } catch (error) {
     console.error('Error processing email request:', error);
-    return NextResponse.json(
-      { error: 'Internal server error' },
-      { status: 500 }
-    );
+    return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
   }
 }
 
 // Helper function to replace {{variable}} with actual values
-function replaceTemplateVariables(
-  template: string,
-  values: Record<string, string>
-): string {
+function replaceTemplateVariables(template: string, values: Record<string, string>): string {
   return template.replace(/\{\{(\w+)\}\}/g, (match, variable) => {
     return values[variable] || match;
   });

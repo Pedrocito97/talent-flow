@@ -2,7 +2,7 @@ import { NextRequest, NextResponse } from 'next/server';
 import { z } from 'zod';
 import { auth } from '@/lib/auth';
 import { db } from '@/lib/db';
-import { hasPermission } from '@/lib/auth/rbac';
+import { hasPermission as _hasPermission } from '@/lib/auth/rbac';
 
 type UserRole = 'OWNER' | 'ADMIN' | 'RECRUITER' | 'VIEWER';
 
@@ -40,10 +40,7 @@ export async function GET(request: NextRequest, { params }: RouteParams) {
     return NextResponse.json({ note });
   } catch (error) {
     console.error('Error fetching note:', error);
-    return NextResponse.json(
-      { error: 'Internal server error' },
-      { status: 500 }
-    );
+    return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
   }
 }
 
@@ -72,10 +69,7 @@ export async function PUT(request: NextRequest, { params }: RouteParams) {
     const isAdmin = userRole === 'OWNER' || userRole === 'ADMIN';
 
     if (!isOwner && !isAdmin) {
-      return NextResponse.json(
-        { error: 'You can only edit your own notes' },
-        { status: 403 }
-      );
+      return NextResponse.json({ error: 'You can only edit your own notes' }, { status: 403 });
     }
 
     const body = await request.json();
@@ -115,10 +109,7 @@ export async function PUT(request: NextRequest, { params }: RouteParams) {
     return NextResponse.json({ note });
   } catch (error) {
     console.error('Error updating note:', error);
-    return NextResponse.json(
-      { error: 'Internal server error' },
-      { status: 500 }
-    );
+    return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
   }
 }
 
@@ -147,10 +138,7 @@ export async function DELETE(request: NextRequest, { params }: RouteParams) {
     const isAdmin = userRole === 'OWNER' || userRole === 'ADMIN';
 
     if (!isOwner && !isAdmin) {
-      return NextResponse.json(
-        { error: 'You can only delete your own notes' },
-        { status: 403 }
-      );
+      return NextResponse.json({ error: 'You can only delete your own notes' }, { status: 403 });
     }
 
     // Delete note
@@ -172,9 +160,6 @@ export async function DELETE(request: NextRequest, { params }: RouteParams) {
     return NextResponse.json({ success: true });
   } catch (error) {
     console.error('Error deleting note:', error);
-    return NextResponse.json(
-      { error: 'Internal server error' },
-      { status: 500 }
-    );
+    return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
   }
 }

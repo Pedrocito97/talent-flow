@@ -73,23 +73,21 @@ export function CandidateCard({ candidate, onClick, isDragging }: CandidateCardP
     <div
       ref={setNodeRef}
       style={style}
+      {...attributes}
+      {...listeners}
       className={cn(
-        'group relative rounded-lg border bg-card p-3 shadow-sm transition-all hover:shadow-md',
-        dragging && 'opacity-50 shadow-lg ring-2 ring-primary',
+        'group relative rounded-xl border bg-card p-3 shadow-sm transition-all hover:shadow-md cursor-grab active:cursor-grabbing',
+        dragging && 'opacity-60 shadow-xl ring-2 ring-primary scale-105 rotate-1',
         candidate.isRejected && 'opacity-60'
       )}
     >
-      {/* Drag Handle */}
-      <button
-        {...attributes}
-        {...listeners}
-        className="absolute left-1 top-1/2 -translate-y-1/2 cursor-grab opacity-0 transition-opacity group-hover:opacity-100"
-      >
+      {/* Drag indicator */}
+      <div className="absolute left-2 top-1/2 -translate-y-1/2 opacity-0 group-hover:opacity-40 transition-opacity pointer-events-none">
         <GripVertical className="h-4 w-4 text-muted-foreground" />
-      </button>
+      </div>
 
       {/* Card Content */}
-      <div className="cursor-pointer pl-4" onClick={onClick}>
+      <div className="cursor-pointer pl-3" onClick={onClick}>
         {/* Header with name and avatar */}
         <div className="flex items-start justify-between gap-2">
           <div className="min-w-0 flex-1">

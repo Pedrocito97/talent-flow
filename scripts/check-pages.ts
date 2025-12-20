@@ -146,7 +146,6 @@ async function checkPages() {
       } else if (result.warnings.length > 0) {
         result.status = 'warning';
       }
-
     } catch (e: any) {
       result.status = 'error';
       result.errors.push(e.message);

@@ -1,10 +1,7 @@
 'use client';
 
 import { useDroppable } from '@dnd-kit/core';
-import {
-  SortableContext,
-  verticalListSortingStrategy,
-} from '@dnd-kit/sortable';
+import { SortableContext, verticalListSortingStrategy } from '@dnd-kit/sortable';
 import { Plus } from 'lucide-react';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
@@ -45,17 +42,14 @@ export function KanbanColumn({
   return (
     <div
       className={cn(
-        'flex h-full w-[300px] shrink-0 flex-col rounded-lg border bg-muted/30',
-        highlighted && 'ring-2 ring-primary ring-offset-2'
+        'flex h-full w-[300px] shrink-0 flex-col rounded-xl border bg-muted/30 transition-all duration-200',
+        highlighted && 'ring-2 ring-primary ring-offset-2 bg-primary/5 scale-[1.02]'
       )}
     >
       {/* Column Header */}
       <div className="flex items-center justify-between border-b p-3">
         <div className="flex items-center gap-2">
-          <span
-            className="h-3 w-3 rounded-full"
-            style={{ backgroundColor: stage.color }}
-          />
+          <span className="h-3 w-3 rounded-full" style={{ backgroundColor: stage.color }} />
           <h3 className="font-medium">{stage.name}</h3>
           {stage.isDefault && (
             <Badge variant="secondary" className="text-[10px]">
@@ -73,10 +67,15 @@ export function KanbanColumn({
             items={candidates.map((c) => c.id)}
             strategy={verticalListSortingStrategy}
           >
-            <div className="space-y-2 p-2">
+            <div className="space-y-2 p-2 min-h-[100px]">
               {candidates.length === 0 ? (
-                <div className="flex h-24 items-center justify-center rounded-lg border-2 border-dashed text-sm text-muted-foreground">
-                  No candidates
+                <div
+                  className={cn(
+                    'flex h-24 items-center justify-center rounded-xl border-2 border-dashed text-sm text-muted-foreground transition-colors',
+                    highlighted && 'border-primary bg-primary/5 text-primary'
+                  )}
+                >
+                  {highlighted ? 'Drop here' : 'No candidates'}
                 </div>
               ) : (
                 candidates.map((candidate) => (

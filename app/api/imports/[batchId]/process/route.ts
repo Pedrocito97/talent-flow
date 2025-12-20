@@ -2,65 +2,12 @@ import { NextRequest, NextResponse } from 'next/server';
 import { auth } from '@/lib/auth';
 import { db } from '@/lib/db';
 import { hasPermission } from '@/lib/auth/rbac';
-import { S3Client, GetObjectCommand } from '@aws-sdk/client-s3';
 import { parseCV, normalizePhone } from '@/lib/parsing';
 
 type UserRole = 'OWNER' | 'ADMIN' | 'RECRUITER' | 'VIEWER';
 
 interface RouteParams {
   params: Promise<{ batchId: string }>;
-}
-
-// Get R2 client
-function getR2Client(): S3Client {
-  const accountId = process.env.R2_ACCOUNT_ID;
-  const accessKeyId = process.env.R2_ACCESS_KEY_ID;
-  const secretAccessKey = process.env.R2_SECRET_ACCESS_KEY;
-
-  if (!accountId || !accessKeyId || !secretAccessKey) {
-    throw new Error('R2 credentials not configured');
-  }
-
-  return new S3Client({
-    region: 'auto',
-    endpoint: `https://${accountId}.r2.cloudflarestorage.com`,
-    credentials: {
-      accessKeyId,
-      secretAccessKey,
-    },
-  });
-}
-
-async function downloadFromR2(s3Key: string): Promise<Buffer> {
-  const client = getR2Client();
-  const bucket = process.env.R2_BUCKET_NAME;
-
-  if (!bucket) {
-    throw new Error('R2_BUCKET_NAME not configured');
-  }
-
-  const response = await client.send(
-    new GetObjectCommand({
-      Bucket: bucket,
-      Key: s3Key,
-    })
-  );
-
-  if (!response.Body) {
-    throw new Error('Empty response from R2');
-  }
-
-  // Convert stream to buffer
-  const chunks: Uint8Array[] = [];
-  const reader = response.Body.transformToWebStream().getReader();
-
-  while (true) {
-    const { done, value } = await reader.read();
-    if (done) break;
-    chunks.push(value);
-  }
-
-  return Buffer.concat(chunks);
 }
 
 function getMimeType(filename: string): string {
@@ -89,10 +36,7 @@ export async function POST(request: NextRequest, { params }: RouteParams) {
 
     const userRole = session.user.role as UserRole;
     if (!hasPermission(userRole, 'CANDIDATE_CREATE')) {
-      return NextResponse.json(
-        { error: 'Insufficient permissions' },
-        { status: 403 }
-      );
+      return NextResponse.json({ error: 'Insufficient permissions' }, { status: 403 });
     }
 
     const { batchId } = await params;
@@ -120,17 +64,11 @@ export async function POST(request: NextRequest, { params }: RouteParams) {
     }
 
     if (batch.status === 'PROCESSING') {
-      return NextResponse.json(
-        { error: 'Batch is already being processed' },
-        { status: 400 }
-      );
+      return NextResponse.json({ error: 'Batch is already being processed' }, { status: 400 });
     }
 
     if (batch.items.length === 0) {
-      return NextResponse.json(
-        { error: 'No files to process' },
-        { status: 400 }
-      );
+      return NextResponse.json({ error: 'No files to process' }, { status: 400 });
     }
 
     // Get default stage
@@ -146,10 +84,7 @@ export async function POST(request: NextRequest, { params }: RouteParams) {
     }
 
     if (!defaultStageId) {
-      return NextResponse.json(
-        { error: 'Pipeline has no stages' },
-        { status: 400 }
-      );
+      return NextResponse.json({ error: 'Pipeline has no stages' }, { status: 400 });
     }
 
     // At this point defaultStageId is guaranteed to be a string
@@ -174,9 +109,12 @@ export async function POST(request: NextRequest, { params }: RouteParams) {
           data: { status: 'PROCESSING' },
         });
 
-        // Download file from R2
-        const buffer = await downloadFromR2(item.s3Key);
-        const mimeType = getMimeType(item.filename);
+        // Get file content from database
+        if (!item.fileContent) {
+          throw new Error('File content not found');
+        }
+        const buffer = Buffer.from(item.fileContent);
+        const mimeType = item.mimeType || getMimeType(item.filename);
 
         // Parse CV
         const parsed = await parseCV(buffer, mimeType);
@@ -220,7 +158,9 @@ export async function POST(request: NextRequest, { params }: RouteParams) {
             data: {
               fullName,
               email: parsed.email,
-              phoneE164: parsed.phone ? normalizePhone(parsed.phone, batch.defaultCountryCode) : null,
+              phoneE164: parsed.phone
+                ? normalizePhone(parsed.phone, batch.defaultCountryCode)
+                : null,
               pipelineId: batch.pipelineId,
               stageId,
               source: 'import',
@@ -323,9 +263,6 @@ export async function POST(request: NextRequest, { params }: RouteParams) {
       // Ignore
     }
 
-    return NextResponse.json(
-      { error: 'Internal server error' },
-      { status: 500 }
-    );
+    return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
   }
 }

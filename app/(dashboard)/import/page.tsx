@@ -11,7 +11,7 @@ import {
   Clock,
   Trash2,
   Play,
-  AlertCircle,
+  AlertCircle as _AlertCircle,
 } from 'lucide-react';
 import { formatDistanceToNow } from 'date-fns';
 import { Button } from '@/components/ui/button';
@@ -88,7 +88,7 @@ export default function ImportPage() {
   const [isLoading, setIsLoading] = useState(true);
   const [isUploading, setIsUploading] = useState(false);
   const [isProcessing, setIsProcessing] = useState(false);
-  const [uploadedFiles, setUploadedFiles] = useState<string[]>([]);
+  const [_uploadedFiles, setUploadedFiles] = useState<string[]>([]);
   const [deletingBatchId, setDeletingBatchId] = useState<string | null>(null);
 
   // Fetch pipelines
@@ -186,7 +186,11 @@ export default function ImportPage() {
 
       if (uploadResponse.ok) {
         const { results } = await uploadResponse.json();
-        setUploadedFiles(results.filter((r: { success: boolean }) => r.success).map((r: { filename: string }) => r.filename));
+        setUploadedFiles(
+          results
+            .filter((r: { success: boolean }) => r.success)
+            .map((r: { filename: string }) => r.filename)
+        );
 
         // Refresh batch
         const refreshResponse = await fetch(`/api/imports/${batch.id}`);
@@ -260,13 +264,33 @@ export default function ImportPage() {
   const getStatusBadge = (status: ImportBatch['status']) => {
     switch (status) {
       case 'PENDING':
-        return <Badge variant="secondary"><Clock className="mr-1 h-3 w-3" />Pending</Badge>;
+        return (
+          <Badge variant="secondary">
+            <Clock className="mr-1 h-3 w-3" />
+            Pending
+          </Badge>
+        );
       case 'PROCESSING':
-        return <Badge variant="default"><Loader2 className="mr-1 h-3 w-3 animate-spin" />Processing</Badge>;
+        return (
+          <Badge variant="default">
+            <Loader2 className="mr-1 h-3 w-3 animate-spin" />
+            Processing
+          </Badge>
+        );
       case 'COMPLETED':
-        return <Badge variant="default" className="bg-green-500"><CheckCircle className="mr-1 h-3 w-3" />Completed</Badge>;
+        return (
+          <Badge variant="default" className="bg-green-500">
+            <CheckCircle className="mr-1 h-3 w-3" />
+            Completed
+          </Badge>
+        );
       case 'FAILED':
-        return <Badge variant="destructive"><XCircle className="mr-1 h-3 w-3" />Failed</Badge>;
+        return (
+          <Badge variant="destructive">
+            <XCircle className="mr-1 h-3 w-3" />
+            Failed
+          </Badge>
+        );
     }
   };
 
@@ -287,9 +311,7 @@ export default function ImportPage() {
     <div className="p-6 max-w-4xl mx-auto">
       <div className="mb-6">
         <h1 className="text-2xl font-semibold">Import CVs</h1>
-        <p className="text-muted-foreground">
-          Upload CV files to automatically create candidates
-        </p>
+        <p className="text-muted-foreground">Upload CV files to automatically create candidates</p>
       </div>
 
       <div className="grid gap-6 md:grid-cols-2">
@@ -297,9 +319,7 @@ export default function ImportPage() {
         <Card>
           <CardHeader>
             <CardTitle>Upload Files</CardTitle>
-            <CardDescription>
-              Supported formats: PDF, Word (.doc, .docx), Text
-            </CardDescription>
+            <CardDescription>Supported formats: PDF, Word (.doc, .docx), Text</CardDescription>
           </CardHeader>
           <CardContent className="space-y-4">
             <div>
@@ -351,9 +371,7 @@ export default function ImportPage() {
 
                 {activeBatch.status === 'PROCESSING' && (
                   <div className="space-y-1">
-                    <Progress
-                      value={(activeBatch.processedCount / activeBatch.totalFiles) * 100}
-                    />
+                    <Progress value={(activeBatch.processedCount / activeBatch.totalFiles) * 100} />
                     <p className="text-xs text-muted-foreground">
                       Processing {activeBatch.processedCount} of {activeBatch.totalFiles}
                     </p>
@@ -363,13 +381,9 @@ export default function ImportPage() {
                 {activeBatch.status === 'COMPLETED' && (
                   <div className="rounded-lg border p-3 bg-muted/50">
                     <div className="flex gap-4 text-sm">
-                      <span className="text-green-600">
-                        {activeBatch.successCount} succeeded
-                      </span>
+                      <span className="text-green-600">{activeBatch.successCount} succeeded</span>
                       {activeBatch.failedCount > 0 && (
-                        <span className="text-destructive">
-                          {activeBatch.failedCount} failed
-                        </span>
+                        <span className="text-destructive">{activeBatch.failedCount} failed</span>
                       )}
                     </div>
                   </div>
@@ -404,9 +418,7 @@ export default function ImportPage() {
                       <Button onClick={handleNewImport} variant="outline">
                         New Import
                       </Button>
-                      <Button
-                        onClick={() => router.push(`/pipelines/${activeBatch.pipeline.id}`)}
-                      >
+                      <Button onClick={() => router.push(`/pipelines/${activeBatch.pipeline.id}`)}>
                         View Pipeline
                       </Button>
                     </>
@@ -426,10 +438,7 @@ export default function ImportPage() {
             <CardContent>
               <div className="space-y-2 max-h-[300px] overflow-y-auto">
                 {activeBatch.items.map((item) => (
-                  <div
-                    key={item.id}
-                    className="flex items-center gap-3 rounded-lg border p-2"
-                  >
+                  <div key={item.id} className="flex items-center gap-3 rounded-lg border p-2">
                     {getItemStatusIcon(item.status)}
                     <div className="flex-1 min-w-0">
                       <p className="text-sm font-medium truncate">{item.filename}</p>
@@ -440,9 +449,7 @@ export default function ImportPage() {
                         </p>
                       )}
                       {item.status === 'FAILED' && item.errorMessage && (
-                        <p className="text-xs text-destructive truncate">
-                          {item.errorMessage}
-                        </p>
+                        <p className="text-xs text-destructive truncate">{item.errorMessage}</p>
                       )}
                     </div>
                   </div>
@@ -482,8 +489,7 @@ export default function ImportPage() {
                         {getStatusBadge(batch.status)}
                       </div>
                       <div className="text-xs text-muted-foreground">
-                        {batch.totalFiles} files &bull;{' '}
-                        {batch.successCount} succeeded &bull;{' '}
+                        {batch.totalFiles} files &bull; {batch.successCount} succeeded &bull;{' '}
                         {formatDistanceToNow(new Date(batch.createdAt), { addSuffix: true })}
                       </div>
                     </div>
@@ -524,8 +530,8 @@ export default function ImportPage() {
           <AlertDialogHeader>
             <AlertDialogTitle>Delete Import Batch</AlertDialogTitle>
             <AlertDialogDescription>
-              Are you sure you want to delete this import batch? This will not delete the
-              candidates that were created from this import.
+              Are you sure you want to delete this import batch? This will not delete the candidates
+              that were created from this import.
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>

@@ -48,10 +48,7 @@ export async function GET(request: NextRequest, { params }: RouteParams) {
     return NextResponse.json({ stage });
   } catch (error) {
     console.error('Error fetching stage:', error);
-    return NextResponse.json(
-      { error: 'Internal server error' },
-      { status: 500 }
-    );
+    return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
   }
 }
 
@@ -67,10 +64,7 @@ export async function PUT(request: NextRequest, { params }: RouteParams) {
     const userRole = session.user.role as UserRole;
 
     if (!hasPermission(userRole, 'STAGE_UPDATE')) {
-      return NextResponse.json(
-        { error: 'Insufficient permissions' },
-        { status: 403 }
-      );
+      return NextResponse.json({ error: 'Insufficient permissions' }, { status: 403 });
     }
 
     const body = await request.json();
@@ -135,10 +129,7 @@ export async function PUT(request: NextRequest, { params }: RouteParams) {
     return NextResponse.json({ stage });
   } catch (error) {
     console.error('Error updating stage:', error);
-    return NextResponse.json(
-      { error: 'Internal server error' },
-      { status: 500 }
-    );
+    return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
   }
 }
 
@@ -154,10 +145,7 @@ export async function DELETE(request: NextRequest, { params }: RouteParams) {
     const userRole = session.user.role as UserRole;
 
     if (!hasPermission(userRole, 'STAGE_DELETE')) {
-      return NextResponse.json(
-        { error: 'Insufficient permissions' },
-        { status: 403 }
-      );
+      return NextResponse.json({ error: 'Insufficient permissions' }, { status: 403 });
     }
 
     const stage = await db.stage.findFirst({
@@ -245,9 +233,6 @@ export async function DELETE(request: NextRequest, { params }: RouteParams) {
     return NextResponse.json({ success: true });
   } catch (error) {
     console.error('Error deleting stage:', error);
-    return NextResponse.json(
-      { error: 'Internal server error' },
-      { status: 500 }
-    );
+    return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
   }
 }

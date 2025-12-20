@@ -30,11 +30,7 @@ interface StageHistoryProps {
 
 export function StageHistory({ history }: StageHistoryProps) {
   if (history.length === 0) {
-    return (
-      <p className="text-center text-sm text-muted-foreground py-4">
-        No stage history yet.
-      </p>
-    );
+    return <p className="text-center text-sm text-muted-foreground py-4">No stage history yet.</p>;
   }
 
   return (
@@ -45,7 +41,7 @@ export function StageHistory({ history }: StageHistoryProps) {
         <div className="absolute left-2 top-2 bottom-2 w-0.5 bg-border" />
 
         <div className="space-y-4">
-          {history.map((entry, index) => (
+          {history.map((entry, _index) => (
             <div key={entry.id} className="relative flex gap-4 pl-6">
               {/* Timeline dot */}
               <div className="absolute left-0 top-1">
@@ -99,9 +95,7 @@ export function StageHistory({ history }: StageHistoryProps) {
                 </div>
                 <div className="mt-1 text-xs text-muted-foreground">
                   {entry.movedBy ? (
-                    <span>
-                      by {entry.movedBy.name || entry.movedBy.email} &bull;{' '}
-                    </span>
+                    <span>by {entry.movedBy.name || entry.movedBy.email} &bull; </span>
                   ) : null}
                   {formatDistanceToNow(new Date(entry.movedAt), { addSuffix: true })}
                 </div>

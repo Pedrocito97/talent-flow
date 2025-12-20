@@ -26,10 +26,7 @@ export async function PUT(request: NextRequest, { params }: RouteParams) {
     const userRole = session.user.role as UserRole;
 
     if (!hasPermission(userRole, 'CANDIDATE_MOVE')) {
-      return NextResponse.json(
-        { error: 'Insufficient permissions' },
-        { status: 403 }
-      );
+      return NextResponse.json({ error: 'Insufficient permissions' }, { status: 403 });
     }
 
     const body = await request.json();
@@ -57,10 +54,7 @@ export async function PUT(request: NextRequest, { params }: RouteParams) {
     }
 
     if (candidate.deletedAt) {
-      return NextResponse.json(
-        { error: 'Cannot move deleted candidate' },
-        { status: 400 }
-      );
+      return NextResponse.json({ error: 'Cannot move deleted candidate' }, { status: 400 });
     }
 
     // Verify new stage exists and belongs to same pipeline
@@ -72,10 +66,7 @@ export async function PUT(request: NextRequest, { params }: RouteParams) {
     });
 
     if (!newStage) {
-      return NextResponse.json(
-        { error: 'Stage not found in this pipeline' },
-        { status: 400 }
-      );
+      return NextResponse.json({ error: 'Stage not found in this pipeline' }, { status: 400 });
     }
 
     // Skip if already in this stage
@@ -146,9 +137,6 @@ export async function PUT(request: NextRequest, { params }: RouteParams) {
     });
   } catch (error) {
     console.error('Error moving candidate:', error);
-    return NextResponse.json(
-      { error: 'Internal server error' },
-      { status: 500 }
-    );
+    return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
   }
 }

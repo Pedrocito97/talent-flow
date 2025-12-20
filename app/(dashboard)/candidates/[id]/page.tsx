@@ -21,7 +21,7 @@ import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Skeleton } from '@/components/ui/skeleton';
-import { Separator } from '@/components/ui/separator';
+import { Separator as _Separator } from '@/components/ui/separator';
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -196,9 +196,7 @@ export default function CandidateDetailPage() {
     if (!candidate) return;
     setCandidate({
       ...candidate,
-      notes: candidate.notes.map((n) =>
-        n.id === updatedNote.id ? updatedNote : n
-      ),
+      notes: candidate.notes.map((n) => (n.id === updatedNote.id ? updatedNote : n)),
     });
   };
 
@@ -237,8 +235,7 @@ export default function CandidateDetailPage() {
     });
   };
 
-  const isAdmin =
-    session?.user?.role === 'OWNER' || session?.user?.role === 'ADMIN';
+  const isAdmin = session?.user?.role === 'OWNER' || session?.user?.role === 'ADMIN';
   const currentUserId = session?.user?.id || '';
 
   if (isLoading) {
@@ -291,9 +288,7 @@ export default function CandidateDetailPage() {
           <div>
             <div className="flex items-center gap-3">
               <h1 className="text-2xl font-semibold">{candidate.fullName}</h1>
-              {candidate.isRejected && (
-                <Badge variant="destructive">Rejected</Badge>
-              )}
+              {candidate.isRejected && <Badge variant="destructive">Rejected</Badge>}
             </div>
             <div className="mt-2 flex flex-wrap items-center gap-4 text-sm text-muted-foreground">
               {candidate.email && (
@@ -364,12 +359,8 @@ export default function CandidateDetailPage() {
         <div className="lg:col-span-2 space-y-6">
           <Tabs defaultValue="notes">
             <TabsList>
-              <TabsTrigger value="notes">
-                Notes ({candidate._count.notes})
-              </TabsTrigger>
-              <TabsTrigger value="files">
-                Files ({candidate._count.attachments})
-              </TabsTrigger>
+              <TabsTrigger value="notes">Notes ({candidate._count.notes})</TabsTrigger>
+              <TabsTrigger value="files">Files ({candidate._count.attachments})</TabsTrigger>
               <TabsTrigger value="emails">Emails</TabsTrigger>
               <TabsTrigger value="history">History</TabsTrigger>
             </TabsList>
@@ -415,9 +406,7 @@ export default function CandidateDetailPage() {
         <div className="space-y-6">
           {/* Stage */}
           <div className="rounded-lg border p-4">
-            <h3 className="text-sm font-medium text-muted-foreground mb-2">
-              Current Stage
-            </h3>
+            <h3 className="text-sm font-medium text-muted-foreground mb-2">Current Stage</h3>
             <Badge
               variant="secondary"
               className="text-sm"
@@ -493,9 +482,8 @@ export default function CandidateDetailPage() {
           <AlertDialogHeader>
             <AlertDialogTitle>Delete Candidate</AlertDialogTitle>
             <AlertDialogDescription>
-              Are you sure you want to permanently delete {candidate.fullName}? This
-              action cannot be undone and will remove all associated notes and
-              attachments.
+              Are you sure you want to permanently delete {candidate.fullName}? This action cannot
+              be undone and will remove all associated notes and attachments.
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>

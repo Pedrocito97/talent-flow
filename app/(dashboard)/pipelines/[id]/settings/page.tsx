@@ -3,16 +3,7 @@
 import { useEffect, useState, useCallback } from 'react';
 import { useParams, useRouter } from 'next/navigation';
 import Link from 'next/link';
-import {
-  ArrowLeft,
-  GripVertical,
-  Plus,
-  Trash2,
-  Pencil,
-  Check,
-  X,
-  Loader2,
-} from 'lucide-react';
+import { ArrowLeft, GripVertical, Plus, Trash2, Pencil, Check, X, Loader2 } from 'lucide-react';
 import {
   DndContext,
   closestCenter,
@@ -31,19 +22,14 @@ import {
 } from '@dnd-kit/sortable';
 import { CSS } from '@dnd-kit/utilities';
 import { Button } from '@/components/ui/button';
-import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardHeader,
-  CardTitle,
-} from '@/components/ui/card';
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
 import { Badge } from '@/components/ui/badge';
 import { Skeleton } from '@/components/ui/skeleton';
 import { Separator } from '@/components/ui/separator';
+import { toast } from 'sonner';
 
 interface Stage {
   id: string;
@@ -88,14 +74,9 @@ function SortableStage({ stage, onUpdate, onDelete, onSetDefault }: SortableStag
   const [editName, setEditName] = useState(stage.name);
   const [editColor, setEditColor] = useState(stage.color);
 
-  const {
-    attributes,
-    listeners,
-    setNodeRef,
-    transform,
-    transition,
-    isDragging,
-  } = useSortable({ id: stage.id });
+  const { attributes, listeners, setNodeRef, transform, transition, isDragging } = useSortable({
+    id: stage.id,
+  });
 
   const style = {
     transform: CSS.Transform.toString(transform),
@@ -153,10 +134,7 @@ function SortableStage({ stage, onUpdate, onDelete, onSetDefault }: SortableStag
         </>
       ) : (
         <>
-          <span
-            className="h-4 w-4 rounded-full"
-            style={{ backgroundColor: stage.color }}
-          />
+          <span className="h-4 w-4 rounded-full" style={{ backgroundColor: stage.color }} />
           <span className="flex-1 font-medium">{stage.name}</span>
 
           {stage.isDefault && (
@@ -169,11 +147,7 @@ function SortableStage({ stage, onUpdate, onDelete, onSetDefault }: SortableStag
             {candidateCount} {candidateCount === 1 ? 'candidate' : 'candidates'}
           </Badge>
 
-          <Button
-            size="icon"
-            variant="ghost"
-            onClick={() => setIsEditing(true)}
-          >
+          <Button size="icon" variant="ghost" onClick={() => setIsEditing(true)}>
             <Pencil className="h-4 w-4" />
           </Button>
 
@@ -342,9 +316,7 @@ export default function PipelineSettingsPage() {
 
       if (response.ok) {
         const result = await response.json();
-        setStages((prev) =>
-          prev.map((s) => (s.id === id ? { ...s, ...result.stage } : s))
-        );
+        setStages((prev) => prev.map((s) => (s.id === id ? { ...s, ...result.stage } : s)));
       }
     } catch (error) {
       console.error('Error updating stage:', error);
@@ -361,9 +333,10 @@ export default function PipelineSettingsPage() {
 
       if (response.ok) {
         setStages((prev) => prev.filter((s) => s.id !== id));
+        toast.success('Stage deleted successfully');
       } else {
         const data = await response.json();
-        alert(data.message || data.error);
+        toast.error(data.message || data.error);
       }
     } catch (error) {
       console.error('Error deleting stage:', error);
@@ -434,9 +407,7 @@ export default function PipelineSettingsPage() {
       <Card>
         <CardHeader>
           <CardTitle>Pipeline Details</CardTitle>
-          <CardDescription>
-            Update the pipeline name and description
-          </CardDescription>
+          <CardDescription>Update the pipeline name and description</CardDescription>
         </CardHeader>
         <CardContent>
           <form onSubmit={handleUpdatePipeline} className="space-y-4">
@@ -471,8 +442,7 @@ export default function PipelineSettingsPage() {
         <CardHeader>
           <CardTitle>Stages</CardTitle>
           <CardDescription>
-            Drag and drop to reorder stages. New candidates will be added to the
-            default stage.
+            Drag and drop to reorder stages. New candidates will be added to the default stage.
           </CardDescription>
         </CardHeader>
         <CardContent className="space-y-4">
@@ -482,10 +452,7 @@ export default function PipelineSettingsPage() {
             collisionDetection={closestCenter}
             onDragEnd={handleDragEnd}
           >
-            <SortableContext
-              items={stages.map((s) => s.id)}
-              strategy={verticalListSortingStrategy}
-            >
+            <SortableContext items={stages.map((s) => s.id)} strategy={verticalListSortingStrategy}>
               <div className="space-y-2">
                 {stages.map((stage) => (
                   <SortableStage
@@ -512,9 +479,7 @@ export default function PipelineSettingsPage() {
                     key={color}
                     type="button"
                     className={`h-8 w-8 rounded-full border-2 transition-all ${
-                      newStageColor === color
-                        ? 'border-primary scale-110'
-                        : 'border-transparent'
+                      newStageColor === color ? 'border-primary scale-110' : 'border-transparent'
                     }`}
                     style={{ backgroundColor: color }}
                     onClick={() => setNewStageColor(color)}
@@ -543,9 +508,7 @@ export default function PipelineSettingsPage() {
       <Card className="border-destructive">
         <CardHeader>
           <CardTitle className="text-destructive">Danger Zone</CardTitle>
-          <CardDescription>
-            Irreversible actions. Proceed with caution.
-          </CardDescription>
+          <CardDescription>Irreversible actions. Proceed with caution.</CardDescription>
         </CardHeader>
         <CardContent className="space-y-4">
           <div className="flex items-center justify-between rounded-lg border p-4">
@@ -573,27 +536,22 @@ export default function PipelineSettingsPage() {
             <div>
               <p className="font-medium text-destructive">Delete Pipeline</p>
               <p className="text-sm text-muted-foreground">
-                Permanently delete this pipeline. Only possible if no candidates
-                exist.
+                Permanently delete this pipeline. Only possible if no candidates exist.
               </p>
             </div>
             <Button
               variant="destructive"
               onClick={async () => {
-                if (
-                  !confirm(
-                    'Are you sure? This action cannot be undone.'
-                  )
-                )
-                  return;
+                if (!confirm('Are you sure? This action cannot be undone.')) return;
                 const response = await fetch(`/api/pipelines/${pipelineId}`, {
                   method: 'DELETE',
                 });
                 if (response.ok) {
                   router.push('/pipelines');
+                  toast.success('Pipeline deleted successfully');
                 } else {
                   const data = await response.json();
-                  alert(data.message || data.error);
+                  toast.error(data.message || data.error);
                 }
               }}
             >

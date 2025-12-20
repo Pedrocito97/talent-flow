@@ -134,10 +134,7 @@ export function withPermission<T>(
     const userRole = session.user.role as UserRole;
 
     if (!hasPermission(userRole, permission)) {
-      return NextResponse.json(
-        { error: 'Insufficient permissions' },
-        { status: 403 }
-      );
+      return NextResponse.json({ error: 'Insufficient permissions' }, { status: 403 });
     }
 
     return handler(request, {
@@ -171,10 +168,7 @@ export function withRole<T>(
     const userRole = session.user.role as UserRole;
 
     if (!hasRole(userRole, allowedRoles)) {
-      return NextResponse.json(
-        { error: 'Insufficient permissions' },
-        { status: 403 }
-      );
+      return NextResponse.json({ error: 'Insufficient permissions' }, { status: 403 });
     }
 
     return handler(request, {

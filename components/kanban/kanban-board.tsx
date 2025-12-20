@@ -129,9 +129,14 @@ export function KanbanBoard({
       </ScrollArea>
 
       {/* Drag Overlay */}
-      <DragOverlay>
+      <DragOverlay
+        dropAnimation={{
+          duration: 200,
+          easing: 'cubic-bezier(0.18, 0.67, 0.6, 1.22)',
+        }}
+      >
         {activeCandidate ? (
-          <div className="w-[280px]">
+          <div className="w-[280px] rotate-2 scale-105">
             <CandidateCard candidate={activeCandidate} isDragging />
           </div>
         ) : null}

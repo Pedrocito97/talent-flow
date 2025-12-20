@@ -101,7 +101,11 @@ interface CandidatesTableProps {
   stages: Stage[];
   isLoading?: boolean;
   onCandidateClick: (candidate: TableCandidate) => void;
-  onBulkAction: (action: string, candidateIds: string[], data?: Record<string, unknown>) => Promise<void>;
+  onBulkAction: (
+    action: string,
+    candidateIds: string[],
+    data?: Record<string, unknown>
+  ) => Promise<void>;
   pagination?: {
     page: number;
     pageSize: number;
@@ -355,10 +359,7 @@ export function CandidatesTable({
                 <DropdownMenuItem
                   onClick={(e) => {
                     e.stopPropagation();
-                    onBulkAction(
-                      candidate.isRejected ? 'unreject' : 'reject',
-                      [candidate.id]
-                    );
+                    onBulkAction(candidate.isRejected ? 'unreject' : 'reject', [candidate.id]);
                   }}
                 >
                   {candidate.isRejected ? (
@@ -417,9 +418,7 @@ export function CandidatesTable({
     },
   });
 
-  const selectedIds = table
-    .getFilteredSelectedRowModel()
-    .rows.map((row) => row.original.id);
+  const selectedIds = table.getFilteredSelectedRowModel().rows.map((row) => row.original.id);
 
   // Reset selection when candidates change
   useEffect(() => {
@@ -431,9 +430,7 @@ export function CandidatesTable({
       {/* Bulk Actions Bar */}
       {selectedIds.length > 0 && (
         <div className="flex items-center gap-2 rounded-lg border bg-muted/50 p-2">
-          <span className="text-sm font-medium">
-            {selectedIds.length} selected
-          </span>
+          <span className="text-sm font-medium">{selectedIds.length} selected</span>
           <div className="flex-1" />
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
@@ -457,11 +454,7 @@ export function CandidatesTable({
               ))}
             </DropdownMenuContent>
           </DropdownMenu>
-          <Button
-            variant="outline"
-            size="sm"
-            onClick={() => onBulkAction('reject', selectedIds)}
-          >
+          <Button variant="outline" size="sm" onClick={() => onBulkAction('reject', selectedIds)}>
             <UserMinus className="mr-2 h-4 w-4" />
             Reject
           </Button>
@@ -518,10 +511,7 @@ export function CandidatesTable({
                   <TableHead key={header.id}>
                     {header.isPlaceholder
                       ? null
-                      : flexRender(
-                          header.column.columnDef.header,
-                          header.getContext()
-                        )}
+                      : flexRender(header.column.columnDef.header, header.getContext())}
                   </TableHead>
                 ))}
               </TableRow>
@@ -539,10 +529,7 @@ export function CandidatesTable({
                 <TableRow
                   key={row.id}
                   data-state={row.getIsSelected() && 'selected'}
-                  className={cn(
-                    'cursor-pointer',
-                    row.original.isRejected && 'opacity-60'
-                  )}
+                  className={cn('cursor-pointer', row.original.isRejected && 'opacity-60')}
                   onClick={() => onCandidateClick(row.original)}
                 >
                   {row.getVisibleCells().map((cell) => (

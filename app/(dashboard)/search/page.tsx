@@ -23,7 +23,13 @@ import { formatDistanceToNow } from 'date-fns';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Badge } from '@/components/ui/badge';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import {
+  Card,
+  CardContent,
+  CardDescription as _CardDescription,
+  CardHeader,
+  CardTitle,
+} from '@/components/ui/card';
 import {
   Select,
   SelectContent,
@@ -44,12 +50,12 @@ import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
-  DropdownMenuSeparator,
+  DropdownMenuSeparator as _DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
 import { Label } from '@/components/ui/label';
 import { Checkbox } from '@/components/ui/checkbox';
-import { ScrollArea } from '@/components/ui/scroll-area';
+import { ScrollArea as _ScrollArea } from '@/components/ui/scroll-area';
 
 interface Candidate {
   id: string;
@@ -319,9 +325,7 @@ function SearchContent() {
       <div className="flex items-center justify-between mb-6">
         <div>
           <h1 className="text-2xl font-semibold">Search Candidates</h1>
-          <p className="text-muted-foreground">
-            Find candidates across all pipelines
-          </p>
+          <p className="text-muted-foreground">Find candidates across all pipelines</p>
         </div>
         <div className="flex items-center gap-2">
           {/* Saved Searches Dropdown */}
@@ -336,14 +340,8 @@ function SearchContent() {
               </DropdownMenuTrigger>
               <DropdownMenuContent align="end" className="w-64">
                 {savedSearches.map((search) => (
-                  <DropdownMenuItem
-                    key={search.id}
-                    className="flex items-center justify-between"
-                  >
-                    <button
-                      className="flex-1 text-left"
-                      onClick={() => applySavedSearch(search)}
-                    >
+                  <DropdownMenuItem key={search.id} className="flex items-center justify-between">
+                    <button className="flex-1 text-left" onClick={() => applySavedSearch(search)}>
                       {search.name}
                       {search.isDefault && (
                         <Badge variant="secondary" className="ml-2 text-xs">
@@ -394,10 +392,7 @@ function SearchContent() {
                 />
               </div>
               <DialogFooter>
-                <Button
-                  variant="outline"
-                  onClick={() => setSaveDialogOpen(false)}
-                >
+                <Button variant="outline" onClick={() => setSaveDialogOpen(false)}>
                   Cancel
                 </Button>
                 <Button onClick={handleSaveSearch} disabled={isSaving}>
@@ -426,10 +421,7 @@ function SearchContent() {
           <Search className="mr-2 h-4 w-4" />
           Search
         </Button>
-        <Button
-          variant="outline"
-          onClick={() => setShowFilters(!showFilters)}
-        >
+        <Button variant="outline" onClick={() => setShowFilters(!showFilters)}>
           <Filter className="mr-2 h-4 w-4" />
           Filters
           {activeFilterCount > 0 && (
@@ -701,9 +693,7 @@ function SearchContent() {
             <CardContent className="flex flex-col items-center justify-center py-12">
               <Users className="h-12 w-12 text-muted-foreground mb-4" />
               <p className="text-lg font-medium">No candidates found</p>
-              <p className="text-muted-foreground">
-                Try adjusting your search or filters
-              </p>
+              <p className="text-muted-foreground">Try adjusting your search or filters</p>
             </CardContent>
           </Card>
         ) : (
@@ -730,9 +720,7 @@ function SearchContent() {
                         >
                           {candidate.stage.name}
                         </Badge>
-                        {candidate.rejectedAt && (
-                          <Badge variant="destructive">Rejected</Badge>
-                        )}
+                        {candidate.rejectedAt && <Badge variant="destructive">Rejected</Badge>}
                       </div>
                       <div className="flex items-center gap-4 mt-1 text-sm text-muted-foreground">
                         <span>{candidate.pipeline.name}</span>

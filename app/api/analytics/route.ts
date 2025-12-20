@@ -16,10 +16,7 @@ export async function GET(request: NextRequest) {
 
     const userRole = session.user.role as UserRole;
     if (!hasPermission(userRole, 'PIPELINE_VIEW')) {
-      return NextResponse.json(
-        { error: 'Insufficient permissions' },
-        { status: 403 }
-      );
+      return NextResponse.json({ error: 'Insufficient permissions' }, { status: 403 });
     }
 
     const { searchParams } = new URL(request.url);
@@ -122,13 +119,11 @@ export async function GET(request: NextRequest) {
     const candidateGrowth =
       candidatesPreviousPeriod > 0
         ? Math.round(
-            ((candidatesThisPeriod - candidatesPreviousPeriod) /
-              candidatesPreviousPeriod) *
-              100
+            ((candidatesThisPeriod - candidatesPreviousPeriod) / candidatesPreviousPeriod) * 100
           )
         : candidatesThisPeriod > 0
-        ? 100
-        : 0;
+          ? 100
+          : 0;
 
     // 2. Pipeline Funnel - candidates per stage for each pipeline
     const pipelinesWithStages = await db.pipeline.findMany({
@@ -205,11 +200,7 @@ export async function GET(request: NextRequest) {
     // 5. Recent activity (last 10 audit log entries)
     const recentActivity = await db.auditLog.findMany({
       where: {
-        OR: [
-          { entityType: 'CANDIDATE' },
-          { entityType: 'PIPELINE' },
-          { entityType: 'STAGE' },
-        ],
+        OR: [{ entityType: 'CANDIDATE' }, { entityType: 'PIPELINE' }, { entityType: 'STAGE' }],
       },
       orderBy: { createdAt: 'desc' },
       take: 10,
@@ -274,9 +265,7 @@ export async function GET(request: NextRequest) {
       stageHistory.map((h) => h.candidate.createdAt.toISOString())
     ).size;
     const conversionRate =
-      totalCandidates > 0
-        ? Math.round((candidatesWithMovement / totalCandidates) * 100)
-        : 0;
+      totalCandidates > 0 ? Math.round((candidatesWithMovement / totalCandidates) * 100) : 0;
 
     return NextResponse.json({
       period: { start: startDate, end: endDate, days },
@@ -307,9 +296,6 @@ export async function GET(request: NextRequest) {
     });
   } catch (error) {
     console.error('Error fetching analytics:', error);
-    return NextResponse.json(
-      { error: 'Internal server error' },
-      { status: 500 }
-    );
+    return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
   }
 }

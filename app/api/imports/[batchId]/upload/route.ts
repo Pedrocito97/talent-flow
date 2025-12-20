@@ -2,7 +2,6 @@ import { NextRequest, NextResponse } from 'next/server';
 import { auth } from '@/lib/auth';
 import { db } from '@/lib/db';
 import { hasPermission } from '@/lib/auth/rbac';
-import { uploadToR2 } from '@/lib/r2';
 
 type UserRole = 'OWNER' | 'ADMIN' | 'RECRUITER' | 'VIEWER';
 
@@ -31,10 +30,7 @@ export async function POST(request: NextRequest, { params }: RouteParams) {
 
     const userRole = session.user.role as UserRole;
     if (!hasPermission(userRole, 'CANDIDATE_CREATE')) {
-      return NextResponse.json(
-        { error: 'Insufficient permissions' },
-        { status: 403 }
-      );
+      return NextResponse.json({ error: 'Insufficient permissions' }, { status: 403 });
     }
 
     const { batchId } = await params;
@@ -96,20 +92,13 @@ export async function POST(request: NextRequest, { params }: RouteParams) {
         const arrayBuffer = await file.arrayBuffer();
         const buffer = Buffer.from(arrayBuffer);
 
-        // Generate S3 key
-        const timestamp = Date.now();
-        const sanitizedFilename = file.name.replace(/[^a-zA-Z0-9.-]/g, '_');
-        const s3Key = `imports/${batchId}/${timestamp}-${sanitizedFilename}`;
-
-        // Upload to R2
-        await uploadToR2(s3Key, buffer, file.type);
-
-        // Create import item record
+        // Create import item record with file content stored in database
         const item = await db.importItem.create({
           data: {
             importBatchId: batchId,
             filename: file.name,
-            s3Key,
+            fileContent: buffer,
+            mimeType: file.type,
             status: 'QUEUED',
           },
         });
@@ -145,9 +134,6 @@ export async function POST(request: NextRequest, { params }: RouteParams) {
     });
   } catch (error) {
     console.error('Error uploading files:', error);
-    return NextResponse.json(
-      { error: 'Internal server error' },
-      { status: 500 }
-    );
+    return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
   }
 }

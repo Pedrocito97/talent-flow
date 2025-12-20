@@ -19,9 +19,9 @@ export function middleware(request: NextRequest) {
 
   // Allow public routes
   if (isPublicRoute) {
-    // Redirect to dashboard if already logged in and trying to access login
+    // Redirect to pipelines if already logged in and trying to access login
     if (pathname.startsWith('/login') && sessionToken) {
-      return NextResponse.redirect(new URL('/', request.url));
+      return NextResponse.redirect(new URL('/pipelines', request.url));
     }
     return NextResponse.next();
   }

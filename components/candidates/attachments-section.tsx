@@ -75,10 +75,7 @@ export function AttachmentsSection({
     if (mimeType === 'application/pdf') {
       return <FileText className="h-5 w-5 text-red-500" />;
     }
-    if (
-      mimeType.includes('word') ||
-      mimeType.includes('document')
-    ) {
+    if (mimeType.includes('word') || mimeType.includes('document')) {
       return <FileText className="h-5 w-5 text-blue-600" />;
     }
     return <File className="h-5 w-5 text-gray-500" />;
@@ -181,14 +178,10 @@ export function AttachmentsSection({
         </div>
       </div>
 
-      {uploadError && (
-        <p className="text-sm text-destructive">{uploadError}</p>
-      )}
+      {uploadError && <p className="text-sm text-destructive">{uploadError}</p>}
 
       {attachments.length === 0 ? (
-        <p className="text-center text-sm text-muted-foreground py-4">
-          No files uploaded yet.
-        </p>
+        <p className="text-center text-sm text-muted-foreground py-4">No files uploaded yet.</p>
       ) : (
         <div className="space-y-2">
           {attachments.map((attachment) => (
@@ -226,12 +219,7 @@ export function AttachmentsSection({
               </div>
               <div className="flex gap-1">
                 {attachment.downloadUrl && (
-                  <Button
-                    variant="ghost"
-                    size="icon"
-                    className="h-8 w-8"
-                    asChild
-                  >
+                  <Button variant="ghost" size="icon" className="h-8 w-8" asChild>
                     <a href={attachment.downloadUrl} target="_blank" rel="noopener noreferrer">
                       <Download className="h-4 w-4" />
                     </a>
@@ -253,10 +241,7 @@ export function AttachmentsSection({
         </div>
       )}
 
-      <AlertDialog
-        open={!!deletingAttachmentId}
-        onOpenChange={() => setDeletingAttachmentId(null)}
-      >
+      <AlertDialog open={!!deletingAttachmentId} onOpenChange={() => setDeletingAttachmentId(null)}>
         <AlertDialogContent>
           <AlertDialogHeader>
             <AlertDialogTitle>Delete File</AlertDialogTitle>

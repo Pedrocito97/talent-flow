@@ -13,7 +13,10 @@ const createPipelineSchema = z.object({
     .array(
       z.object({
         name: z.string().min(1).max(50),
-        color: z.string().regex(/^#[0-9A-Fa-f]{6}$/).optional(),
+        color: z
+          .string()
+          .regex(/^#[0-9A-Fa-f]{6}$/)
+          .optional(),
       })
     )
     .optional(),
@@ -69,10 +72,7 @@ export async function GET() {
     return NextResponse.json({ pipelines });
   } catch (error) {
     console.error('Error fetching pipelines:', error);
-    return NextResponse.json(
-      { error: 'Internal server error' },
-      { status: 500 }
-    );
+    return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
   }
 }
 
@@ -87,10 +87,7 @@ export async function POST(request: NextRequest) {
     const userRole = session.user.role as UserRole;
 
     if (!hasPermission(userRole, 'PIPELINE_CREATE')) {
-      return NextResponse.json(
-        { error: 'Insufficient permissions' },
-        { status: 403 }
-      );
+      return NextResponse.json({ error: 'Insufficient permissions' }, { status: 403 });
     }
 
     const body = await request.json();
@@ -158,9 +155,6 @@ export async function POST(request: NextRequest) {
     return NextResponse.json({ pipeline }, { status: 201 });
   } catch (error) {
     console.error('Error creating pipeline:', error);
-    return NextResponse.json(
-      { error: 'Internal server error' },
-      { status: 500 }
-    );
+    return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
   }
 }

@@ -42,10 +42,7 @@ export async function GET(request: NextRequest) {
     return NextResponse.json({ batches });
   } catch (error) {
     console.error('Error fetching import batches:', error);
-    return NextResponse.json(
-      { error: 'Internal server error' },
-      { status: 500 }
-    );
+    return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
   }
 }
 
@@ -59,10 +56,7 @@ export async function POST(request: NextRequest) {
 
     const userRole = session.user.role as UserRole;
     if (!hasPermission(userRole, 'CANDIDATE_CREATE')) {
-      return NextResponse.json(
-        { error: 'Insufficient permissions' },
-        { status: 403 }
-      );
+      return NextResponse.json({ error: 'Insufficient permissions' }, { status: 403 });
     }
 
     const body = await request.json();
@@ -118,9 +112,6 @@ export async function POST(request: NextRequest) {
     return NextResponse.json({ batch }, { status: 201 });
   } catch (error) {
     console.error('Error creating import batch:', error);
-    return NextResponse.json(
-      { error: 'Internal server error' },
-      { status: 500 }
-    );
+    return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
   }
 }

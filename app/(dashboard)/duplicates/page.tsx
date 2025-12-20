@@ -38,6 +38,7 @@ import {
 } from '@/components/ui/alert-dialog';
 import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
 import { Label } from '@/components/ui/label';
+import { toast } from 'sonner';
 
 interface Candidate {
   id: string;
@@ -106,7 +107,9 @@ export default function DuplicatesPage() {
         setGroups(data.groups);
         setStats(data.stats);
         // Auto-expand first few groups
-        const initialExpanded = new Set<string>(data.groups.slice(0, 3).map((g: DuplicateGroup) => g.key));
+        const initialExpanded = new Set<string>(
+          data.groups.slice(0, 3).map((g: DuplicateGroup) => g.key)
+        );
         setExpandedGroups(initialExpanded);
       }
     } catch (error) {
@@ -158,13 +161,14 @@ export default function DuplicatesPage() {
         // Refresh the list
         fetchDuplicates();
         setMergingGroup(null);
+        toast.success('Candidates merged successfully');
       } else {
         const data = await response.json();
-        alert(data.error || 'Failed to merge candidates');
+        toast.error(data.error || 'Failed to merge candidates');
       }
     } catch (error) {
       console.error('Failed to merge:', error);
-      alert('Failed to merge candidates');
+      toast.error('Failed to merge candidates');
     } finally {
       setIsMerging(false);
     }
@@ -176,9 +180,7 @@ export default function DuplicatesPage() {
       <div className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
         <div>
           <h1 className="text-3xl font-bold tracking-tight">Duplicate Candidates</h1>
-          <p className="text-muted-foreground mt-1">
-            Find and merge duplicate candidate records
-          </p>
+          <p className="text-muted-foreground mt-1">Find and merge duplicate candidate records</p>
         </div>
       </div>
 
@@ -212,14 +214,18 @@ export default function DuplicatesPage() {
         <Card className="border-0 shadow-card relative overflow-hidden">
           <div className="absolute inset-0 bg-gradient-to-br from-violet-500/10 via-purple-500/5 to-transparent" />
           <CardHeader className="relative pb-2">
-            <CardDescription className="text-xs uppercase tracking-wider font-medium">Duplicate Groups</CardDescription>
+            <CardDescription className="text-xs uppercase tracking-wider font-medium">
+              Duplicate Groups
+            </CardDescription>
             <CardTitle className="text-4xl font-bold">{stats.totalGroups}</CardTitle>
           </CardHeader>
         </Card>
         <Card className="border-0 shadow-card relative overflow-hidden">
           <div className="absolute inset-0 bg-gradient-to-br from-rose-500/10 via-pink-500/5 to-transparent" />
           <CardHeader className="relative pb-2">
-            <CardDescription className="text-xs uppercase tracking-wider font-medium">Total Duplicates</CardDescription>
+            <CardDescription className="text-xs uppercase tracking-wider font-medium">
+              Total Duplicates
+            </CardDescription>
             <CardTitle className="text-4xl font-bold">{stats.totalDuplicates}</CardTitle>
           </CardHeader>
         </Card>
@@ -264,7 +270,9 @@ export default function DuplicatesPage() {
                       <ChevronRight className="h-5 w-5 text-muted-foreground" />
                     )}
                     <div className="flex items-center gap-2">
-                      <div className={`h-9 w-9 rounded-xl flex items-center justify-center ${group.type === 'email' ? 'bg-blue-500/10' : 'bg-emerald-500/10'}`}>
+                      <div
+                        className={`h-9 w-9 rounded-xl flex items-center justify-center ${group.type === 'email' ? 'bg-blue-500/10' : 'bg-emerald-500/10'}`}
+                      >
                         {group.type === 'email' ? (
                           <Mail className="h-4 w-4 text-blue-500" />
                         ) : (
@@ -305,7 +313,10 @@ export default function DuplicatesPage() {
                           <div className="flex items-center gap-2">
                             <span className="font-medium">{candidate.fullName}</span>
                             {index === 0 && (
-                              <Badge variant="outline" className="text-xs rounded-full bg-amber-50 text-amber-600 border-amber-200 dark:bg-amber-950/50 dark:text-amber-400 dark:border-amber-800">
+                              <Badge
+                                variant="outline"
+                                className="text-xs rounded-full bg-amber-50 text-amber-600 border-amber-200 dark:bg-amber-950/50 dark:text-amber-400 dark:border-amber-800"
+                              >
                                 Oldest
                               </Badge>
                             )}
@@ -357,8 +368,8 @@ export default function DuplicatesPage() {
           <AlertDialogHeader>
             <AlertDialogTitle className="text-xl">Merge Candidates</AlertDialogTitle>
             <AlertDialogDescription>
-              Select the primary record to keep. All notes, attachments, and emails from
-              other candidates will be moved to this record.
+              Select the primary record to keep. All notes, attachments, and emails from other
+              candidates will be moved to this record.
             </AlertDialogDescription>
           </AlertDialogHeader>
 
@@ -381,7 +392,10 @@ export default function DuplicatesPage() {
                         <div>
                           <span className="font-medium">{candidate.fullName}</span>
                           {index === 0 && (
-                            <Badge variant="outline" className="ml-2 text-xs rounded-full bg-teal-50 text-teal-600 border-teal-200 dark:bg-teal-950/50 dark:text-teal-400 dark:border-teal-800">
+                            <Badge
+                              variant="outline"
+                              className="ml-2 text-xs rounded-full bg-teal-50 text-teal-600 border-teal-200 dark:bg-teal-950/50 dark:text-teal-400 dark:border-teal-800"
+                            >
                               Recommended
                             </Badge>
                           )}
@@ -402,11 +416,12 @@ export default function DuplicatesPage() {
                 <div className="flex items-start gap-3 text-sm">
                   <AlertCircle className="h-5 w-5 mt-0.5 text-amber-500" />
                   <div>
-                    <p className="font-medium text-amber-700 dark:text-amber-400">What will happen:</p>
+                    <p className="font-medium text-amber-700 dark:text-amber-400">
+                      What will happen:
+                    </p>
                     <ul className="mt-2 list-disc list-inside text-amber-600 dark:text-amber-500 space-y-1">
                       <li>
-                        {mergingGroup.candidates.length - 1} candidate(s) will be marked as
-                        merged
+                        {mergingGroup.candidates.length - 1} candidate(s) will be marked as merged
                       </li>
                       <li>All notes and attachments will be moved to the primary record</li>
                       <li>Email history will be consolidated</li>
@@ -419,8 +434,14 @@ export default function DuplicatesPage() {
           )}
 
           <AlertDialogFooter>
-            <AlertDialogCancel disabled={isMerging} className="rounded-xl">Cancel</AlertDialogCancel>
-            <AlertDialogAction onClick={handleMerge} disabled={isMerging} className="rounded-xl bg-gradient-to-r from-teal-500 to-cyan-500 hover:from-teal-600 hover:to-cyan-600">
+            <AlertDialogCancel disabled={isMerging} className="rounded-xl">
+              Cancel
+            </AlertDialogCancel>
+            <AlertDialogAction
+              onClick={handleMerge}
+              disabled={isMerging}
+              className="rounded-xl bg-gradient-to-r from-teal-500 to-cyan-500 hover:from-teal-600 hover:to-cyan-600"
+            >
               {isMerging && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
               Merge Candidates
             </AlertDialogAction>

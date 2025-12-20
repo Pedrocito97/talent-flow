@@ -153,8 +153,8 @@ export default function InviteAcceptPage() {
             <div>
               <p className="font-medium">{error}</p>
               <p className="text-sm mt-1">
-                This invitation link may have expired or already been used.
-                Please contact your administrator for a new invitation.
+                This invitation link may have expired or already been used. Please contact your
+                administrator for a new invitation.
               </p>
             </div>
           </div>
@@ -179,9 +179,7 @@ export default function InviteAcceptPage() {
             <CheckCircle2 className="h-5 w-5" />
             <div>
               <p className="font-medium">Your account has been activated</p>
-              <p className="text-sm mt-1">
-                Redirecting you to the login page...
-              </p>
+              <p className="text-sm mt-1">Redirecting you to the login page...</p>
             </div>
           </div>
         </CardContent>
@@ -203,9 +201,7 @@ export default function InviteAcceptPage() {
             <div className="rounded-md bg-destructive/10 p-3 text-sm text-destructive">
               <div className="flex items-center gap-2">
                 <AlertCircle className="h-4 w-4" />
-                <span className="font-medium">
-                  {error || 'Please fix the following errors:'}
-                </span>
+                <span className="font-medium">{error || 'Please fix the following errors:'}</span>
               </div>
               {validationErrors.length > 0 && (
                 <ul className="mt-2 ml-6 list-disc">

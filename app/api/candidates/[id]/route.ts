@@ -85,10 +85,7 @@ export async function GET(request: NextRequest, { params }: RouteParams) {
     return NextResponse.json({ candidate });
   } catch (error) {
     console.error('Error fetching candidate:', error);
-    return NextResponse.json(
-      { error: 'Internal server error' },
-      { status: 500 }
-    );
+    return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
   }
 }
 
@@ -104,10 +101,7 @@ export async function PUT(request: NextRequest, { params }: RouteParams) {
     const userRole = session.user.role as UserRole;
 
     if (!hasPermission(userRole, 'CANDIDATE_UPDATE')) {
-      return NextResponse.json(
-        { error: 'Insufficient permissions' },
-        { status: 403 }
-      );
+      return NextResponse.json({ error: 'Insufficient permissions' }, { status: 403 });
     }
 
     const body = await request.json();
@@ -128,8 +122,7 @@ export async function PUT(request: NextRequest, { params }: RouteParams) {
       return NextResponse.json({ error: 'Candidate not found' }, { status: 404 });
     }
 
-    const { fullName, email, phone, assignedToUserId, isRejected } =
-      validationResult.data;
+    const { fullName, email, phone, assignedToUserId, isRejected } = validationResult.data;
 
     // Build update data
     const updateData: {
@@ -145,8 +138,7 @@ export async function PUT(request: NextRequest, { params }: RouteParams) {
     if (fullName !== undefined) updateData.fullName = fullName;
     if (email !== undefined) updateData.email = email;
     if (phone !== undefined) updateData.phoneE164 = phone;
-    if (assignedToUserId !== undefined)
-      updateData.assignedToUserId = assignedToUserId;
+    if (assignedToUserId !== undefined) updateData.assignedToUserId = assignedToUserId;
 
     // Handle rejection status change
     if (isRejected !== undefined) {
@@ -192,10 +184,7 @@ export async function PUT(request: NextRequest, { params }: RouteParams) {
     return NextResponse.json({ candidate });
   } catch (error) {
     console.error('Error updating candidate:', error);
-    return NextResponse.json(
-      { error: 'Internal server error' },
-      { status: 500 }
-    );
+    return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
   }
 }
 
@@ -211,10 +200,7 @@ export async function DELETE(request: NextRequest, { params }: RouteParams) {
     const userRole = session.user.role as UserRole;
 
     if (!hasPermission(userRole, 'CANDIDATE_DELETE')) {
-      return NextResponse.json(
-        { error: 'Insufficient permissions' },
-        { status: 403 }
-      );
+      return NextResponse.json({ error: 'Insufficient permissions' }, { status: 403 });
     }
 
     const candidate = await db.candidate.findUnique({
@@ -245,9 +231,6 @@ export async function DELETE(request: NextRequest, { params }: RouteParams) {
     return NextResponse.json({ success: true });
   } catch (error) {
     console.error('Error deleting candidate:', error);
-    return NextResponse.json(
-      { error: 'Internal server error' },
-      { status: 500 }
-    );
+    return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
   }
 }

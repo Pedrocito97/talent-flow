@@ -100,7 +100,13 @@ export async function GET(request: NextRequest, { params }: RouteParams) {
     }
 
     // Build orderBy based on sort field
-    type OrderByType = { stage?: { orderIndex: 'asc' | 'desc' }; fullName?: 'asc' | 'desc'; email?: 'asc' | 'desc'; createdAt?: 'asc' | 'desc'; updatedAt?: 'asc' | 'desc' };
+    type OrderByType = {
+      stage?: { orderIndex: 'asc' | 'desc' };
+      fullName?: 'asc' | 'desc';
+      email?: 'asc' | 'desc';
+      createdAt?: 'asc' | 'desc';
+      updatedAt?: 'asc' | 'desc';
+    };
     let orderBy: OrderByType | OrderByType[];
 
     if (sortField === 'stage') {
@@ -141,37 +147,38 @@ export async function GET(request: NextRequest, { params }: RouteParams) {
     });
 
     // Group by stage for kanban view
-    const candidatesByStage = view === 'kanban'
-      ? candidates.reduce(
-          (acc, candidate) => {
-            const stageId = candidate.stageId;
-            if (!acc[stageId]) {
-              acc[stageId] = [];
-            }
-            acc[stageId].push(candidate);
-            return acc;
-          },
-          {} as Record<string, typeof candidates>
-        )
-      : undefined;
+    const candidatesByStage =
+      view === 'kanban'
+        ? candidates.reduce(
+            (acc, candidate) => {
+              const stageId = candidate.stageId;
+              if (!acc[stageId]) {
+                acc[stageId] = [];
+              }
+              acc[stageId].push(candidate);
+              return acc;
+            },
+            {} as Record<string, typeof candidates>
+          )
+        : undefined;
 
     return NextResponse.json({
       candidates,
       candidatesByStage,
       total: totalCount,
-      pagination: view === 'table' ? {
-        page,
-        pageSize,
-        totalPages: Math.ceil(totalCount / pageSize),
-        totalCount,
-      } : undefined,
+      pagination:
+        view === 'table'
+          ? {
+              page,
+              pageSize,
+              totalPages: Math.ceil(totalCount / pageSize),
+              totalCount,
+            }
+          : undefined,
     });
   } catch (error) {
     console.error('Error fetching candidates:', error);
-    return NextResponse.json(
-      { error: 'Internal server error' },
-      { status: 500 }
-    );
+    return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
   }
 }
 
@@ -187,10 +194,7 @@ export async function POST(request: NextRequest, { params }: RouteParams) {
     const userRole = session.user.role as UserRole;
 
     if (!hasPermission(userRole, 'CANDIDATE_CREATE')) {
-      return NextResponse.json(
-        { error: 'Insufficient permissions' },
-        { status: 403 }
-      );
+      return NextResponse.json({ error: 'Insufficient permissions' }, { status: 403 });
     }
 
     const body = await request.json();
@@ -230,10 +234,7 @@ export async function POST(request: NextRequest, { params }: RouteParams) {
           orderBy: { orderIndex: 'asc' },
         });
         if (!firstStage) {
-          return NextResponse.json(
-            { error: 'Pipeline has no stages' },
-            { status: 400 }
-          );
+          return NextResponse.json({ error: 'Pipeline has no stages' }, { status: 400 });
         }
         targetStageId = firstStage.id;
       } else {
@@ -247,10 +248,7 @@ export async function POST(request: NextRequest, { params }: RouteParams) {
     });
 
     if (!stage) {
-      return NextResponse.json(
-        { error: 'Stage not found in this pipeline' },
-        { status: 400 }
-      );
+      return NextResponse.json({ error: 'Stage not found in this pipeline' }, { status: 400 });
     }
 
     // Create candidate
@@ -303,9 +301,6 @@ export async function POST(request: NextRequest, { params }: RouteParams) {
     return NextResponse.json({ candidate }, { status: 201 });
   } catch (error) {
     console.error('Error creating candidate:', error);
-    return NextResponse.json(
-      { error: 'Internal server error' },
-      { status: 500 }
-    );
+    return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
   }
 }

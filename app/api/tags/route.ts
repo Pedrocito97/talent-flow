@@ -8,7 +8,10 @@ type UserRole = 'OWNER' | 'ADMIN' | 'RECRUITER' | 'VIEWER';
 
 const createTagSchema = z.object({
   name: z.string().min(1, 'Tag name is required').max(50),
-  color: z.string().regex(/^#[0-9A-Fa-f]{6}$/, 'Invalid color format').optional(),
+  color: z
+    .string()
+    .regex(/^#[0-9A-Fa-f]{6}$/, 'Invalid color format')
+    .optional(),
 });
 
 // GET /api/tags - List all tags
@@ -31,10 +34,7 @@ export async function GET() {
     return NextResponse.json({ tags });
   } catch (error) {
     console.error('Error fetching tags:', error);
-    return NextResponse.json(
-      { error: 'Internal server error' },
-      { status: 500 }
-    );
+    return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
   }
 }
 
@@ -48,10 +48,7 @@ export async function POST(request: NextRequest) {
 
     const userRole = session.user.role as UserRole;
     if (!hasPermission(userRole, 'CANDIDATE_UPDATE')) {
-      return NextResponse.json(
-        { error: 'Insufficient permissions' },
-        { status: 403 }
-      );
+      return NextResponse.json({ error: 'Insufficient permissions' }, { status: 403 });
     }
 
     const body = await request.json();
@@ -72,10 +69,7 @@ export async function POST(request: NextRequest) {
     });
 
     if (existing) {
-      return NextResponse.json(
-        { error: 'Tag with this name already exists' },
-        { status: 409 }
-      );
+      return NextResponse.json({ error: 'Tag with this name already exists' }, { status: 409 });
     }
 
     // Create tag
@@ -94,9 +88,6 @@ export async function POST(request: NextRequest) {
     return NextResponse.json({ tag }, { status: 201 });
   } catch (error) {
     console.error('Error creating tag:', error);
-    return NextResponse.json(
-      { error: 'Internal server error' },
-      { status: 500 }
-    );
+    return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
   }
 }

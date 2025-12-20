@@ -28,10 +28,7 @@ export async function GET(request: NextRequest, { params }: RouteParams) {
 
     // Users can view their own profile, admins can view anyone
     if (id !== session.user.id && !hasPermission(userRole, 'USER_VIEW')) {
-      return NextResponse.json(
-        { error: 'Insufficient permissions' },
-        { status: 403 }
-      );
+      return NextResponse.json({ error: 'Insufficient permissions' }, { status: 403 });
     }
 
     const user = await db.user.findUnique({
@@ -80,10 +77,7 @@ export async function GET(request: NextRequest, { params }: RouteParams) {
     return NextResponse.json({ user });
   } catch (error) {
     console.error('Error fetching user:', error);
-    return NextResponse.json(
-      { error: 'Internal server error' },
-      { status: 500 }
-    );
+    return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
   }
 }
 
@@ -97,10 +91,7 @@ export async function PUT(request: NextRequest, { params }: RouteParams) {
 
     const userRole = session.user.role as UserRole;
     if (!hasPermission(userRole, 'USER_UPDATE')) {
-      return NextResponse.json(
-        { error: 'Insufficient permissions' },
-        { status: 403 }
-      );
+      return NextResponse.json({ error: 'Insufficient permissions' }, { status: 403 });
     }
 
     const { id } = await params;
@@ -125,10 +116,7 @@ export async function PUT(request: NextRequest, { params }: RouteParams) {
 
     // Prevent changing own role (security)
     if (id === session.user.id && parsed.data.role) {
-      return NextResponse.json(
-        { error: 'Cannot change your own role' },
-        { status: 400 }
-      );
+      return NextResponse.json({ error: 'Cannot change your own role' }, { status: 400 });
     }
 
     // Only OWNER can create/demote OWNERs
@@ -138,10 +126,7 @@ export async function PUT(request: NextRequest, { params }: RouteParams) {
 
     if (isPromotingToOwner || isDemotingOwner) {
       if (userRole !== 'OWNER') {
-        return NextResponse.json(
-          { error: 'Only owners can manage owner roles' },
-          { status: 403 }
-        );
+        return NextResponse.json({ error: 'Only owners can manage owner roles' }, { status: 403 });
       }
     }
 
@@ -151,10 +136,7 @@ export async function PUT(request: NextRequest, { params }: RouteParams) {
         where: { role: 'OWNER', deletedAt: null },
       });
       if (ownerCount <= 1) {
-        return NextResponse.json(
-          { error: 'Cannot demote the last owner' },
-          { status: 400 }
-        );
+        return NextResponse.json({ error: 'Cannot demote the last owner' }, { status: 400 });
       }
     }
 
@@ -188,10 +170,7 @@ export async function PUT(request: NextRequest, { params }: RouteParams) {
     return NextResponse.json({ user });
   } catch (error) {
     console.error('Error updating user:', error);
-    return NextResponse.json(
-      { error: 'Internal server error' },
-      { status: 500 }
-    );
+    return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
   }
 }
 
@@ -205,20 +184,14 @@ export async function DELETE(request: NextRequest, { params }: RouteParams) {
 
     const userRole = session.user.role as UserRole;
     if (!hasPermission(userRole, 'USER_DELETE')) {
-      return NextResponse.json(
-        { error: 'Insufficient permissions' },
-        { status: 403 }
-      );
+      return NextResponse.json({ error: 'Insufficient permissions' }, { status: 403 });
     }
 
     const { id } = await params;
 
     // Prevent self-deletion
     if (id === session.user.id) {
-      return NextResponse.json(
-        { error: 'Cannot delete your own account' },
-        { status: 400 }
-      );
+      return NextResponse.json({ error: 'Cannot delete your own account' }, { status: 400 });
     }
 
     // Check if user exists
@@ -236,10 +209,7 @@ export async function DELETE(request: NextRequest, { params }: RouteParams) {
         where: { role: 'OWNER', deletedAt: null },
       });
       if (ownerCount <= 1) {
-        return NextResponse.json(
-          { error: 'Cannot delete the last owner' },
-          { status: 400 }
-        );
+        return NextResponse.json({ error: 'Cannot delete the last owner' }, { status: 400 });
       }
     }
 
@@ -263,9 +233,6 @@ export async function DELETE(request: NextRequest, { params }: RouteParams) {
     return NextResponse.json({ success: true });
   } catch (error) {
     console.error('Error deleting user:', error);
-    return NextResponse.json(
-      { error: 'Internal server error' },
-      { status: 500 }
-    );
+    return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
   }
 }

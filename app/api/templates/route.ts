@@ -24,10 +24,7 @@ export async function GET() {
 
     const userRole = session.user.role as UserRole;
     if (!hasPermission(userRole, 'TEMPLATE_VIEW')) {
-      return NextResponse.json(
-        { error: 'Insufficient permissions' },
-        { status: 403 }
-      );
+      return NextResponse.json({ error: 'Insufficient permissions' }, { status: 403 });
     }
 
     const templates = await db.emailTemplate.findMany({
@@ -52,10 +49,7 @@ export async function GET() {
     return NextResponse.json({ templates });
   } catch (error) {
     console.error('Error fetching templates:', error);
-    return NextResponse.json(
-      { error: 'Internal server error' },
-      { status: 500 }
-    );
+    return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
   }
 }
 
@@ -69,10 +63,7 @@ export async function POST(request: NextRequest) {
 
     const userRole = session.user.role as UserRole;
     if (!hasPermission(userRole, 'TEMPLATE_CREATE')) {
-      return NextResponse.json(
-        { error: 'Insufficient permissions' },
-        { status: 403 }
-      );
+      return NextResponse.json({ error: 'Insufficient permissions' }, { status: 403 });
     }
 
     const body = await request.json();
@@ -124,10 +115,7 @@ export async function POST(request: NextRequest) {
     return NextResponse.json({ template }, { status: 201 });
   } catch (error) {
     console.error('Error creating template:', error);
-    return NextResponse.json(
-      { error: 'Internal server error' },
-      { status: 500 }
-    );
+    return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
   }
 }
 

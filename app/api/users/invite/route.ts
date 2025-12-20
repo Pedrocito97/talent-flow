@@ -30,10 +30,7 @@ export async function POST(request: NextRequest) {
 
     // Only OWNER and ADMIN can invite users
     if (!['OWNER', 'ADMIN'].includes(session.user.role)) {
-      return NextResponse.json(
-        { error: 'Insufficient permissions' },
-        { status: 403 }
-      );
+      return NextResponse.json({ error: 'Insufficient permissions' }, { status: 403 });
     }
 
     const body = await request.json();
@@ -56,10 +53,7 @@ export async function POST(request: NextRequest) {
 
     if (existingUser) {
       if (existingUser.activatedAt) {
-        return NextResponse.json(
-          { error: 'User with this email already exists' },
-          { status: 409 }
-        );
+        return NextResponse.json({ error: 'User with this email already exists' }, { status: 409 });
       }
 
       // User was invited but hasn't activated - we can resend
@@ -172,9 +166,6 @@ export async function POST(request: NextRequest) {
     });
   } catch (error) {
     console.error('Error creating invitation:', error);
-    return NextResponse.json(
-      { error: 'Internal server error' },
-      { status: 500 }
-    );
+    return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
   }
 }

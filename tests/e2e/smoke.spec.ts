@@ -24,7 +24,7 @@ test.describe('Smoke Tests - All Pages', () => {
 
     // Check for console errors
     const errors: string[] = [];
-    page.on('console', msg => {
+    page.on('console', (msg) => {
       if (msg.type() === 'error') {
         errors.push(msg.text());
       }
@@ -46,7 +46,7 @@ test.describe('Smoke Tests - All Pages', () => {
     await expect(page.locator('h1, h2').first()).toBeVisible({ timeout: 10000 });
 
     const errors: string[] = [];
-    page.on('console', msg => {
+    page.on('console', (msg) => {
       if (msg.type() === 'error') {
         errors.push(msg.text());
       }
@@ -63,7 +63,7 @@ test.describe('Smoke Tests - All Pages', () => {
     await expect(page.locator('h1, h2').first()).toBeVisible({ timeout: 10000 });
 
     const errors: string[] = [];
-    page.on('console', msg => {
+    page.on('console', (msg) => {
       if (msg.type() === 'error') {
         errors.push(msg.text());
       }
@@ -80,7 +80,7 @@ test.describe('Smoke Tests - All Pages', () => {
     await expect(page.locator('h1, h2').first()).toBeVisible({ timeout: 10000 });
 
     const errors: string[] = [];
-    page.on('console', msg => {
+    page.on('console', (msg) => {
       if (msg.type() === 'error') {
         errors.push(msg.text());
       }
@@ -97,7 +97,7 @@ test.describe('Smoke Tests - All Pages', () => {
     await expect(page.locator('h1, h2').first()).toBeVisible({ timeout: 10000 });
 
     const errors: string[] = [];
-    page.on('console', msg => {
+    page.on('console', (msg) => {
       if (msg.type() === 'error') {
         errors.push(msg.text());
       }
@@ -115,7 +115,7 @@ test.describe('Smoke Tests - All Pages', () => {
 
     // Click on first pipeline card/link
     const pipelineLink = page.locator('a[href*="/pipelines/"]').first();
-    if (await pipelineLink.count() > 0) {
+    if ((await pipelineLink.count()) > 0) {
       await pipelineLink.click();
       await page.waitForLoadState('networkidle');
 
@@ -135,7 +135,7 @@ test.describe('API Endpoint Tests', () => {
       form: {
         email: 'admin@talentflow.com',
         password: 'password123',
-      }
+      },
     });
 
     const response = await request.get(`${BASE_URL}/api/analytics?days=30`);

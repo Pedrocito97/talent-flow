@@ -47,10 +47,7 @@ export async function GET(request: NextRequest, { params }: RouteParams) {
     return NextResponse.json({ notes });
   } catch (error) {
     console.error('Error fetching notes:', error);
-    return NextResponse.json(
-      { error: 'Internal server error' },
-      { status: 500 }
-    );
+    return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
   }
 }
 
@@ -64,10 +61,7 @@ export async function POST(request: NextRequest, { params }: RouteParams) {
 
     const userRole = session.user.role as UserRole;
     if (!hasPermission(userRole, 'CANDIDATE_UPDATE')) {
-      return NextResponse.json(
-        { error: 'Insufficient permissions' },
-        { status: 403 }
-      );
+      return NextResponse.json({ error: 'Insufficient permissions' }, { status: 403 });
     }
 
     const { id: candidateId } = await params;
@@ -120,9 +114,6 @@ export async function POST(request: NextRequest, { params }: RouteParams) {
     return NextResponse.json({ note }, { status: 201 });
   } catch (error) {
     console.error('Error creating note:', error);
-    return NextResponse.json(
-      { error: 'Internal server error' },
-      { status: 500 }
-    );
+    return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
   }
 }

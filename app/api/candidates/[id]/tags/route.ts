@@ -51,10 +51,7 @@ export async function GET(request: NextRequest, { params }: RouteParams) {
     return NextResponse.json({ tags });
   } catch (error) {
     console.error('Error fetching candidate tags:', error);
-    return NextResponse.json(
-      { error: 'Internal server error' },
-      { status: 500 }
-    );
+    return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
   }
 }
 
@@ -68,10 +65,7 @@ export async function POST(request: NextRequest, { params }: RouteParams) {
 
     const userRole = session.user.role as UserRole;
     if (!hasPermission(userRole, 'CANDIDATE_UPDATE')) {
-      return NextResponse.json(
-        { error: 'Insufficient permissions' },
-        { status: 403 }
-      );
+      return NextResponse.json({ error: 'Insufficient permissions' }, { status: 403 });
     }
 
     const { id: candidateId } = await params;
@@ -111,10 +105,7 @@ export async function POST(request: NextRequest, { params }: RouteParams) {
     });
 
     if (existing) {
-      return NextResponse.json(
-        { error: 'Tag already assigned to candidate' },
-        { status: 409 }
-      );
+      return NextResponse.json({ error: 'Tag already assigned to candidate' }, { status: 409 });
     }
 
     // Assign tag
@@ -136,10 +127,7 @@ export async function POST(request: NextRequest, { params }: RouteParams) {
     return NextResponse.json({ success: true, tag }, { status: 201 });
   } catch (error) {
     console.error('Error assigning tag:', error);
-    return NextResponse.json(
-      { error: 'Internal server error' },
-      { status: 500 }
-    );
+    return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
   }
 }
 
@@ -153,10 +141,7 @@ export async function PUT(request: NextRequest, { params }: RouteParams) {
 
     const userRole = session.user.role as UserRole;
     if (!hasPermission(userRole, 'CANDIDATE_UPDATE')) {
-      return NextResponse.json(
-        { error: 'Insufficient permissions' },
-        { status: 403 }
-      );
+      return NextResponse.json({ error: 'Insufficient permissions' }, { status: 403 });
     }
 
     const { id: candidateId } = await params;
@@ -187,10 +172,7 @@ export async function PUT(request: NextRequest, { params }: RouteParams) {
     });
 
     if (tags.length !== tagIds.length) {
-      return NextResponse.json(
-        { error: 'One or more tags not found' },
-        { status: 404 }
-      );
+      return NextResponse.json({ error: 'One or more tags not found' }, { status: 404 });
     }
 
     // Replace all tags in a transaction
@@ -219,10 +201,7 @@ export async function PUT(request: NextRequest, { params }: RouteParams) {
     return NextResponse.json({ success: true, tags });
   } catch (error) {
     console.error('Error updating tags:', error);
-    return NextResponse.json(
-      { error: 'Internal server error' },
-      { status: 500 }
-    );
+    return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
   }
 }
 
@@ -236,10 +215,7 @@ export async function DELETE(request: NextRequest, { params }: RouteParams) {
 
     const userRole = session.user.role as UserRole;
     if (!hasPermission(userRole, 'CANDIDATE_UPDATE')) {
-      return NextResponse.json(
-        { error: 'Insufficient permissions' },
-        { status: 403 }
-      );
+      return NextResponse.json({ error: 'Insufficient permissions' }, { status: 403 });
     }
 
     const { id: candidateId } = await params;
@@ -247,10 +223,7 @@ export async function DELETE(request: NextRequest, { params }: RouteParams) {
     const tagId = searchParams.get('tagId');
 
     if (!tagId) {
-      return NextResponse.json(
-        { error: 'tagId query parameter is required' },
-        { status: 400 }
-      );
+      return NextResponse.json({ error: 'tagId query parameter is required' }, { status: 400 });
     }
 
     // Verify candidate exists
@@ -269,10 +242,7 @@ export async function DELETE(request: NextRequest, { params }: RouteParams) {
     });
 
     if (!existing) {
-      return NextResponse.json(
-        { error: 'Tag not assigned to candidate' },
-        { status: 404 }
-      );
+      return NextResponse.json({ error: 'Tag not assigned to candidate' }, { status: 404 });
     }
 
     // Remove tag
@@ -294,9 +264,6 @@ export async function DELETE(request: NextRequest, { params }: RouteParams) {
     return NextResponse.json({ success: true });
   } catch (error) {
     console.error('Error removing tag:', error);
-    return NextResponse.json(
-      { error: 'Internal server error' },
-      { status: 500 }
-    );
+    return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
   }
 }

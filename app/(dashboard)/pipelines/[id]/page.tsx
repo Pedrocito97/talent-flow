@@ -38,6 +38,7 @@ import {
 } from '@/components/ui/select';
 import { KanbanBoard, CandidatePanel, Candidate, Stage } from '@/components/kanban';
 import { CandidatesTable, TableCandidate } from '@/components/table';
+import { toast } from 'sonner';
 
 interface User {
   id: string;
@@ -98,9 +99,7 @@ export default function PipelineDetailPage() {
   const [stageFilter, setStageFilter] = useState<string>('all');
 
   // Table sorting
-  const [sorting, setSorting] = useState<SortingState>([
-    { id: 'createdAt', desc: true },
-  ]);
+  const [sorting, setSorting] = useState<SortingState>([{ id: 'createdAt', desc: true }]);
 
   // Candidate panel
   const [selectedCandidateId, setSelectedCandidateId] = useState<string | null>(null);
@@ -261,9 +260,10 @@ export default function PipelineDetailPage() {
       if (response.ok) {
         // Refresh candidates
         fetchCandidates(pagination?.page || 1, pagination?.pageSize || 50);
+        toast.success('Action completed successfully');
       } else {
         const result = await response.json();
-        alert(result.error || 'Action failed');
+        toast.error(result.error || 'Action failed');
       }
     } catch (error) {
       console.error('Bulk action failed:', error);
@@ -406,10 +406,7 @@ export default function PipelineDetailPage() {
             {pipeline.stages.map((stage) => (
               <SelectItem key={stage.id} value={stage.id}>
                 <div className="flex items-center gap-2">
-                  <span
-                    className="h-2 w-2 rounded-full"
-                    style={{ backgroundColor: stage.color }}
-                  />
+                  <span className="h-2 w-2 rounded-full" style={{ backgroundColor: stage.color }} />
                   {stage.name}
                 </div>
               </SelectItem>
@@ -497,9 +494,7 @@ export default function PipelineDetailPage() {
           <form onSubmit={handleCreateCandidate}>
             <DialogHeader>
               <DialogTitle>Add Candidate</DialogTitle>
-              <DialogDescription>
-                Add a new candidate to the pipeline.
-              </DialogDescription>
+              <DialogDescription>Add a new candidate to the pipeline.</DialogDescription>
             </DialogHeader>
             <div className="space-y-4 py-4">
               <div className="space-y-2">
@@ -521,9 +516,7 @@ export default function PipelineDetailPage() {
                   type="email"
                   placeholder="john@example.com"
                   value={newCandidate.email}
-                  onChange={(e) =>
-                    setNewCandidate((prev) => ({ ...prev, email: e.target.value }))
-                  }
+                  onChange={(e) => setNewCandidate((prev) => ({ ...prev, email: e.target.value }))}
                 />
               </div>
               <div className="space-y-2">
@@ -532,18 +525,12 @@ export default function PipelineDetailPage() {
                   id="phone"
                   placeholder="+32 123 456 789"
                   value={newCandidate.phone}
-                  onChange={(e) =>
-                    setNewCandidate((prev) => ({ ...prev, phone: e.target.value }))
-                  }
+                  onChange={(e) => setNewCandidate((prev) => ({ ...prev, phone: e.target.value }))}
                 />
               </div>
             </div>
             <DialogFooter>
-              <Button
-                type="button"
-                variant="outline"
-                onClick={() => setIsAddModalOpen(false)}
-              >
+              <Button type="button" variant="outline" onClick={() => setIsAddModalOpen(false)}>
                 Cancel
               </Button>
               <Button type="submit" disabled={isCreating || !newCandidate.fullName.trim()}>

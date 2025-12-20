@@ -1,5 +1,6 @@
 import type { Metadata } from 'next';
 import { Inter } from 'next/font/google';
+import { Toaster } from 'sonner';
 import { SessionProvider } from '@/components/providers';
 import './globals.css';
 
@@ -22,6 +23,7 @@ export default function RootLayout({
     <html lang="en" suppressHydrationWarning>
       <body className={`${inter.variable} font-sans antialiased`}>
         <SessionProvider>{children}</SessionProvider>
+        <Toaster richColors position="bottom-right" />
       </body>
     </html>
   );

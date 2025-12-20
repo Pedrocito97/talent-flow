@@ -10,7 +10,6 @@ import {
   Settings,
   Kanban,
   GitMerge,
-  Search,
   Waves,
   ChevronRight,
   Sparkles,
@@ -33,15 +32,9 @@ const navigation = [
   },
   {
     name: 'Candidates',
-    href: '/candidates',
+    href: '/search',
     icon: Users,
     gradient: 'from-rose-400 to-pink-500',
-  },
-  {
-    name: 'Search',
-    href: '/search',
-    icon: Search,
-    gradient: 'from-amber-400 to-orange-500',
   },
   {
     name: 'Duplicates',
@@ -74,9 +67,10 @@ const adminNavigation = [
 
 interface SidebarProps {
   isAdmin?: boolean;
+  organizationName?: string;
 }
 
-export function Sidebar({ isAdmin = true }: SidebarProps) {
+export function Sidebar({ isAdmin = true, organizationName = 'My Organization' }: SidebarProps) {
   const pathname = usePathname();
 
   return (
@@ -85,10 +79,13 @@ export function Sidebar({ isAdmin = true }: SidebarProps) {
       <div className="absolute inset-0 pointer-events-none">
         <div className="absolute top-0 right-0 w-96 h-96 bg-gradient-to-br from-teal-500/5 to-transparent rounded-full blur-3xl" />
         <div className="absolute bottom-0 left-0 w-96 h-96 bg-gradient-to-tr from-rose-500/5 to-transparent rounded-full blur-3xl" />
-        <div className="absolute inset-0 opacity-[0.02]" style={{
-          backgroundImage: `radial-gradient(circle at 2px 2px, white 1px, transparent 0)`,
-          backgroundSize: '24px 24px',
-        }} />
+        <div
+          className="absolute inset-0 opacity-[0.02]"
+          style={{
+            backgroundImage: `radial-gradient(circle at 2px 2px, white 1px, transparent 0)`,
+            backgroundSize: '24px 24px',
+          }}
+        />
       </div>
 
       {/* Logo Section */}
@@ -164,9 +161,7 @@ export function Sidebar({ isAdmin = true }: SidebarProps) {
                 <span className="relative flex-1 truncate">{item.name}</span>
 
                 {/* Active indicator */}
-                {isActive && (
-                  <ChevronRight className="relative h-4 w-4 text-white/70" />
-                )}
+                {isActive && <ChevronRight className="relative h-4 w-4 text-white/70" />}
               </Link>
             );
           })}
@@ -181,8 +176,7 @@ export function Sidebar({ isAdmin = true }: SidebarProps) {
             </div>
             <nav className="space-y-1">
               {adminNavigation.map((item) => {
-                const isActive =
-                  pathname === item.href || pathname.startsWith(`${item.href}/`);
+                const isActive = pathname === item.href || pathname.startsWith(`${item.href}/`);
                 return (
                   <Link
                     key={item.name}
@@ -221,9 +215,7 @@ export function Sidebar({ isAdmin = true }: SidebarProps) {
 
                     <span className="relative flex-1 truncate">{item.name}</span>
 
-                    {isActive && (
-                      <ChevronRight className="relative h-4 w-4 text-white/70" />
-                    )}
+                    {isActive && <ChevronRight className="relative h-4 w-4 text-white/70" />}
                   </Link>
                 );
               })}
@@ -243,11 +235,9 @@ export function Sidebar({ isAdmin = true }: SidebarProps) {
           </div>
           <div className="flex-1 min-w-0">
             <p className="text-xs font-semibold text-sidebar-foreground truncate">
-              RTT Commerce BV
+              {organizationName}
             </p>
-            <p className="text-[10px] text-sidebar-foreground/40 font-medium">
-              Professional Plan
-            </p>
+            <p className="text-[10px] text-sidebar-foreground/40 font-medium">Professional Plan</p>
           </div>
           <div className="flex h-6 items-center rounded-full bg-teal-500/20 px-2">
             <span className="text-[9px] font-bold text-teal-400 uppercase tracking-wide">Pro</span>

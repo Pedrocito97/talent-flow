@@ -17,16 +17,31 @@ const PHONE_PATTERNS = [
 ];
 
 /**
- * Extract text from a PDF buffer
+ * Extract text from a PDF buffer using pdfjs-dist
  */
 export async function extractTextFromPDF(buffer: Buffer): Promise<string> {
   try {
-    // Dynamic import to handle ESM/CJS differences
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    const pdfParse = await import('pdf-parse') as any;
-    const pdf = pdfParse.default || pdfParse;
-    const data = await pdf(buffer);
-    return data.text || '';
+    const pdfjsLib = await import('pdfjs-dist/legacy/build/pdf.mjs');
+
+    // Load PDF document
+    const uint8Array = new Uint8Array(buffer);
+    const loadingTask = pdfjsLib.getDocument({ data: uint8Array });
+    const pdf = await loadingTask.promise;
+
+    let fullText = '';
+
+    // Extract text from each page
+    for (let i = 1; i <= pdf.numPages; i++) {
+      const page = await pdf.getPage(i);
+      const textContent = await page.getTextContent();
+      const pageText = textContent.items
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        .map((item: any) => ('str' in item ? item.str : ''))
+        .join(' ');
+      fullText += pageText + '\n';
+    }
+
+    return fullText.trim();
   } catch (error) {
     console.error('Error parsing PDF:', error);
     throw new Error('Failed to parse PDF');
@@ -41,7 +56,10 @@ export function extractTextFromWord(buffer: Buffer): string {
   // Basic extraction - in production use mammoth.js
   const text = buffer.toString('utf8');
   // Remove binary garbage, keep readable text
-  return text.replace(/[^\x20-\x7E\n\r\t]/g, ' ').replace(/\s+/g, ' ').trim();
+  return text
+    .replace(/[^\x20-\x7E\n\r\t]/g, ' ')
+    .replace(/\s+/g, ' ')
+    .trim();
 }
 
 /**
@@ -78,9 +96,7 @@ function extractEmail(text: string): string | null {
   // Filter out common false positives
   const validEmails = matches.filter((email) => {
     const lower = email.toLowerCase();
-    return !lower.includes('example') &&
-           !lower.includes('test@') &&
-           !lower.includes('@domain');
+    return !lower.includes('example') && !lower.includes('test@') && !lower.includes('@domain');
   });
 
   return validEmails[0] || matches[0];
@@ -109,52 +125,86 @@ function extractPhone(text: string): string | null {
  */
 function extractName(text: string): string | null {
   // Split into lines and look for name patterns
-  const lines = text.split('\n').map((l) => l.trim()).filter((l) => l.length > 0);
+  const lines = text
+    .split('\n')
+    .map((l) => l.trim())
+    .filter((l) => l.length > 0);
 
   // Common patterns to skip
   const skipPatterns = [
-    /curriculum vitae/i,
-    /resume/i,
-    /cv/i,
-    /contact/i,
-    /email/i,
-    /phone/i,
-    /address/i,
-    /experience/i,
-    /education/i,
-    /skills/i,
-    /objective/i,
-    /summary/i,
+    /^curriculum vitae$/i,
+    /^resume$/i,
+    /^cv$/i,
+    /^contact$/i,
+    /^email$/i,
+    /^phone$/i,
+    /^address$/i,
+    /^experience$/i,
+    /^education$/i,
+    /^skills$/i,
+    /^objective$/i,
+    /^summary$/i,
+    /^profile$/i,
     /^[0-9]/,
     /@/,
+    /^http/i,
+    /linkedin/i,
+    /github/i,
   ];
 
-  for (const line of lines.slice(0, 10)) { // Check first 10 lines
+  for (const line of lines.slice(0, 15)) {
+    // Check first 15 lines
     // Skip if matches any skip pattern
     if (skipPatterns.some((p) => p.test(line))) continue;
 
     // Skip if too short or too long
-    if (line.length < 3 || line.length > 50) continue;
+    if (line.length < 3 || line.length > 60) continue;
 
-    // Skip if contains numbers (except spaces)
+    // Skip if contains numbers
     if (/\d/.test(line)) continue;
 
-    // Check if it looks like a name (2-4 words, capitalized)
-    const words = line.split(/\s+/);
-    if (words.length >= 2 && words.length <= 4) {
-      const allCapitalized = words.every(
-        (w) => /^[A-Z][a-z]+$/.test(w) || /^[A-Z]+$/.test(w)
+    // Skip lines that are too generic
+    if (/^(mr|mrs|ms|dr|prof)\.?\s*$/i.test(line)) continue;
+
+    // Check if it looks like a name (1-5 words)
+    const words = line.split(/\s+/).filter((w) => w.length > 1);
+    if (words.length >= 1 && words.length <= 5) {
+      // Check if words look like names (start with capital or all caps)
+      const nameWords = words.filter(
+        (w) => /^[A-Z][a-zA-Zéèêëàâäùûüôöîïç'-]*$/i.test(w) && w.length > 1
       );
-      if (allCapitalized) {
-        return line;
+      if (nameWords.length >= 2) {
+        // Format properly: capitalize first letter of each word
+        const formattedName = nameWords
+          .map((w) => w.charAt(0).toUpperCase() + w.slice(1).toLowerCase())
+          .join(' ');
+        return formattedName;
       }
     }
   }
 
   // Fallback: look for "Name:" pattern
-  const nameMatch = text.match(/(?:name|naam|nom)\s*[:\-]?\s*([A-Z][a-z]+(?:\s+[A-Z][a-z]+)+)/i);
+  const nameMatch = text.match(
+    /(?:name|naam|nom|full name)\s*[:\-]?\s*([A-Za-zéèêëàâäùûüôöîïç'-]+(?:\s+[A-Za-zéèêëàâäùûüôöîïç'-]+)+)/i
+  );
   if (nameMatch) {
-    return nameMatch[1];
+    const words = nameMatch[1].split(/\s+/);
+    return words.map((w) => w.charAt(0).toUpperCase() + w.slice(1).toLowerCase()).join(' ');
+  }
+
+  // Second fallback: find any sequence of 2-3 capitalized words in first 500 chars
+  const firstPart = text.substring(0, 500);
+  const namePattern =
+    /\b([A-Z][a-zéèêëàâäùûüôöîïç'-]+)\s+([A-Z][a-zéèêëàâäùûüôöîïç'-]+)(?:\s+([A-Z][a-zéèêëàâäùûüôöîïç'-]+))?\b/;
+  const fallbackMatch = firstPart.match(namePattern);
+  if (fallbackMatch) {
+    const parts = [fallbackMatch[1], fallbackMatch[2]];
+    if (fallbackMatch[3]) parts.push(fallbackMatch[3]);
+    // Skip if it looks like a header
+    const combined = parts.join(' ');
+    if (!/curriculum|resume|vitae|profile|contact|experience/i.test(combined)) {
+      return combined;
+    }
   }
 
   return null;
@@ -163,7 +213,11 @@ function extractName(text: string): string | null {
 /**
  * Calculate confidence score based on extracted data
  */
-function calculateConfidence(data: { name: string | null; email: string | null; phone: string | null }): number {
+function calculateConfidence(data: {
+  name: string | null;
+  email: string | null;
+  phone: string | null;
+}): number {
   let score = 0;
 
   if (data.name) score += 40;

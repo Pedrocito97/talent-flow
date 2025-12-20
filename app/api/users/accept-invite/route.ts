@@ -37,18 +37,12 @@ export async function POST(request: NextRequest) {
     });
 
     if (!user) {
-      return NextResponse.json(
-        { error: 'Invalid or expired invitation token' },
-        { status: 400 }
-      );
+      return NextResponse.json({ error: 'Invalid or expired invitation token' }, { status: 400 });
     }
 
     // Check if token has expired
     if (user.inviteTokenExpires && user.inviteTokenExpires < new Date()) {
-      return NextResponse.json(
-        { error: 'Invitation token has expired' },
-        { status: 400 }
-      );
+      return NextResponse.json({ error: 'Invitation token has expired' }, { status: 400 });
     }
 
     // Hash the password
@@ -85,10 +79,7 @@ export async function POST(request: NextRequest) {
     });
   } catch (error) {
     console.error('Error accepting invitation:', error);
-    return NextResponse.json(
-      { error: 'Internal server error' },
-      { status: 500 }
-    );
+    return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
   }
 }
 
@@ -99,10 +90,7 @@ export async function GET(request: NextRequest) {
     const token = searchParams.get('token');
 
     if (!token) {
-      return NextResponse.json(
-        { error: 'Token is required' },
-        { status: 400 }
-      );
+      return NextResponse.json({ error: 'Token is required' }, { status: 400 });
     }
 
     const user = await db.user.findFirst({
@@ -138,9 +126,6 @@ export async function GET(request: NextRequest) {
     });
   } catch (error) {
     console.error('Error validating token:', error);
-    return NextResponse.json(
-      { error: 'Internal server error' },
-      { status: 500 }
-    );
+    return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
   }
 }

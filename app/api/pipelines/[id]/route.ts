@@ -57,24 +57,16 @@ export async function GET(request: NextRequest, { params }: RouteParams) {
 
     // Check access for non-admin users
     if (!['OWNER', 'ADMIN'].includes(userRole)) {
-      const hasAccess = pipeline.assignments.some(
-        (a) => a.userId === session.user.id
-      );
+      const hasAccess = pipeline.assignments.some((a) => a.userId === session.user.id);
       if (!hasAccess) {
-        return NextResponse.json(
-          { error: 'Access denied to this pipeline' },
-          { status: 403 }
-        );
+        return NextResponse.json({ error: 'Access denied to this pipeline' }, { status: 403 });
       }
     }
 
     return NextResponse.json({ pipeline });
   } catch (error) {
     console.error('Error fetching pipeline:', error);
-    return NextResponse.json(
-      { error: 'Internal server error' },
-      { status: 500 }
-    );
+    return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
   }
 }
 
@@ -90,10 +82,7 @@ export async function PUT(request: NextRequest, { params }: RouteParams) {
     const userRole = session.user.role as UserRole;
 
     if (!hasPermission(userRole, 'PIPELINE_UPDATE')) {
-      return NextResponse.json(
-        { error: 'Insufficient permissions' },
-        { status: 403 }
-      );
+      return NextResponse.json({ error: 'Insufficient permissions' }, { status: 403 });
     }
 
     const body = await request.json();
@@ -147,10 +136,7 @@ export async function PUT(request: NextRequest, { params }: RouteParams) {
     return NextResponse.json({ pipeline });
   } catch (error) {
     console.error('Error updating pipeline:', error);
-    return NextResponse.json(
-      { error: 'Internal server error' },
-      { status: 500 }
-    );
+    return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
   }
 }
 
@@ -166,10 +152,7 @@ export async function DELETE(request: NextRequest, { params }: RouteParams) {
     const userRole = session.user.role as UserRole;
 
     if (!hasPermission(userRole, 'PIPELINE_DELETE')) {
-      return NextResponse.json(
-        { error: 'Insufficient permissions' },
-        { status: 403 }
-      );
+      return NextResponse.json({ error: 'Insufficient permissions' }, { status: 403 });
     }
 
     const pipeline = await db.pipeline.findUnique({
@@ -214,9 +197,6 @@ export async function DELETE(request: NextRequest, { params }: RouteParams) {
     return NextResponse.json({ success: true });
   } catch (error) {
     console.error('Error deleting pipeline:', error);
-    return NextResponse.json(
-      { error: 'Internal server error' },
-      { status: 500 }
-    );
+    return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
   }
 }
